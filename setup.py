@@ -5,23 +5,20 @@ This is meant to apply a simple otsu threshold to all images, identify the masks
 Made by Joshua McCausland in the CJW lab, 2023.
 """
 
-if __name__ == '__main__':
-    setup('Borrelia_Cell_Segmentation',
-          version = '1.0',
-          url = descr,
-          author = 'J. McCausland',
-          author_email= 'jmccaus@stanford.edu',
-          packages = ['borrelia_cell_segmentation'],
-          install_requires = [
-              'numpy',
-              'pandas',
-              'sknw_jwm @ git+https://github.com/jwmcca/sknw_edit.git',
-              'scikit-image',
-              'scipy',
-              'opencv-python',
-              'itertools',
-              'nd2reader',
-              'warnings',
-              'os'
-          ]
-          )
+setup(
+    name = 'Borrelia_Cell_Segmentation',
+    version = '1.0',
+    author = 'J. McCausland',
+    author_email= 'jmccaus@stanford.edu',
+    long_description=descr,
+    packages = ['Borrelia_Cell_Segmentation'],
+    install_requires = [
+        'numpy',
+        'pandas',
+        'sknw_jwm @ git+https://github.com/jwmcca/sknw_edit.git',
+        'scikit-image',
+        'scipy',
+        'opencv-python',
+        'nd2reader'
+        ], 
+    )
