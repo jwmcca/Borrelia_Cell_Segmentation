@@ -7,7 +7,7 @@ Made by Joshua McCausland in the CJW lab, 2023.
 
 setup(
     name = 'Borrelia_Cell_Segmentation',
-    version = '1.0',
+    version = '1.1',
     author = 'J. McCausland',
     author_email= 'jmccaus@stanford.edu',
     long_description=descr,

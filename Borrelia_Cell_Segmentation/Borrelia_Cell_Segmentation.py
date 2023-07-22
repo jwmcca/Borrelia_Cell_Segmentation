@@ -449,31 +449,33 @@ class borrelia_cell_segmentation:
     
     Made by Joshua McCausland in the CJW lab, 2023.
     '''
-    def __init__(self,**kwargs):
-        defaultKwargs = {'minimum_size': 500,
-                         'minimum_length': 5,
-                         'maximum_width': 0.55,
-                         'px_size': 0.065,
-                         'instantaneous_max_width': 1,
-                         'back_sub': 0,
-                         'threshold': 'batch_otsu',
-                         'thresh_adjust': 1,
-                         'otsu_bins': 25,
-                         'Remove_out_of_focus_cells': 1}
+    def __init__(self,mimimum_size = 500,minimum_length = 5,maximum_width = 0.55,px_size = 0.065,
+                 instantaneous_max_width = 1, back_sub = False,threshold = 'batch_otsu',thresh_adjust = 1,otsu_bins = 25,
+                 remove_out_of_focus_cells = True,remove_linescans = False):
+        args = {'minimum_size': mimimum_size,
+                         'minimum_length': minimum_length,
+                         'maximum_width': maximum_width,
+                         'px_size': px_size,
+                         'instantaneous_max_width': instantaneous_max_width,
+                         'back_sub': back_sub,
+                         'threshold': threshold,
+                         'thresh_adjust': thresh_adjust,
+                         'otsu_bins': otsu_bins,
+                         'remove_out_of_focus_cells': remove_out_of_focus_cells,
+                         'remove_linescans': remove_linescans}
         
-        # Replace default kwargs with any specified kwargs.
-        kwargs = { **defaultKwargs, **kwargs}
-        self.segmentation_params = kwargs
-        self.minimum_size = kwargs['minimum_size']
-        self.minimum_length = kwargs['minimum_length']
-        self.maximum_width = kwargs['maximum_width']
-        self.px_size = kwargs['px_size']
-        self.thresh_adjust = kwargs['thresh_adjust']
-        self.inst_max_width = kwargs['instantaneous_max_width']
-        self.back_sub = kwargs['back_sub']
-        self.otsu_bins = kwargs['otsu_bins']
-        self.threshold_method = kwargs['threshold']
-        self.Remove_out_of_focus_cells = kwargs['Remove_out_of_focus_cells']
+        self.segmentation_params = args
+        self.minimum_size = mimimum_size
+        self.minimum_length = minimum_length
+        self.maximum_width = maximum_width
+        self.px_size = px_size
+        self.thresh_adjust = thresh_adjust
+        self.inst_max_width = instantaneous_max_width
+        self.back_sub = back_sub
+        self.otsu_bins = otsu_bins
+        self.threshold_method = threshold
+        self.remove_out_of_focus_cells = remove_out_of_focus_cells
+        self.remove_linescans = remove_linescans
         self.df = pd.DataFrame()
 
     def load_parameters(self,file):
@@ -496,7 +498,7 @@ class borrelia_cell_segmentation:
         self.back_sub = kwargs['back_sub']
         self.otsu_bins = kwargs['otsu_bins']
         self.threshold_method = kwargs['threshold']
-        self.Remove_out_of_focus_cells = kwargs['Remove_out_of_focus_cells']
+        self.remove_out_of_focus_cells = kwargs['remove_out_of_focus_cells']
 
     def load_dataframe(self,file):
         self.df = pd.read_pickle(file)
@@ -674,17 +676,23 @@ class borrelia_cell_segmentation:
         temp_df['frame'] = temp_df.CellCoord.apply(lambda x: x[0][0]+1)
         temp_df['skel_coords'] = temp_df.CellID.apply(lambda x: np.array(self.skel_coords[x]))
         temp_df['CellLength'] = temp_df.skel_coords.apply(lambda x: x[0].size*self.px_size)
-        nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
-        temp_df = temp_df[nodes == 2]
+        temp_df = temp_df[temp_df.CellLength > self.minimum_length]
+        if not self.remove_linescans:
+            nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
+            temp_df = temp_df[nodes == 2]
         thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
         temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
         max_width = thickness.apply(lambda x: 2*np.max(x)*self.px_size)
-        temp_df = temp_df[(temp_df.width < self.maximum_width) | (max_width < self.inst_max_width) & (temp_df.width > 0.1)]
-        if self.Remove_out_of_focus_cells:
+        if self.remove_linescans:
+            temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
+        else:
+            temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1) | (max_width < self.inst_max_width)]
+        saturated =  temp_df.CellCoord.apply(lambda x: False if signal_images[x[0],x[1],x[2]].max() == 2**16-1 else True)
+        temp_df = temp_df[saturated]
+        if self.remove_out_of_focus_cells:
             check_if_in_focus = temp_df.apply(lambda row: check_in_focus(signal_images[row.frame-1],row.CellCoord),axis = 1)
             temp_df = temp_df[check_if_in_focus]
-        temp_df['traced_skel_coords'] = temp_df.skel_coords.apply(lambda x: parse_skeleton(self.sensor[1:],x[1:]))
-        
+                
         
         '''
         if self.back_sub:
@@ -704,14 +712,34 @@ class borrelia_cell_segmentation:
             #del bkg_imgs
         del self.phase
 
-        linescan = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
-        if not linescan.shape[0]:
-            print('There are no cells to screen!')
-            return
-        temp_df['linescan'] = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
+        if not self.remove_linescans:
+            temp_df['traced_skel_coords'] = temp_df.skel_coords.apply(lambda x: parse_skeleton(self.sensor[1:],x[1:]))
+            linescan = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
+            if not linescan.shape[0]:
+                print('There are no cells to screen!')
+                return
+            temp_df['linescan'] = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
         temp_df['Mean_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].mean())
         temp_df['Int_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].sum())
-        temp_df['Norm_Intens'] = temp_df['Int_Intens'].div(temp_df['CellLength'])
+        temp_df['Norm_Intens_Length'] = temp_df['Int_Intens'].div(temp_df['CellLength'])
+        temp_df['Norm_Intens_Area'] = temp_df.apply(lambda row: row.Int_Intens/(row.CellCoord[0].shape[0]*self.px_size**2),axis = 1)
+        self.df = pd.concat([self.df,temp_df])
+
+    def archive_cells(self):
+        if not self.skel_coords.shape[0]:
+            print('There are no cells to screen!')
+            return
+        temp_df = pd.DataFrame()
+        temp_df['filename'] = pd.Series(np.repeat(self.filename,self.cell_coords.index.size))
+        temp_df['CellID'] = self.cell_coords.index
+        temp_df['CellCoord'] = temp_df.CellID.apply(lambda x: np.array(self.cell_coords[x]))
+        temp_df['frame'] = temp_df.CellCoord.apply(lambda x: x[0][0]+1)
+        temp_df['skel_coords'] = temp_df.CellID.apply(lambda x: np.array(self.skel_coords[x]))
+        temp_df['CellLength'] = temp_df.skel_coords.apply(lambda x: x[0].size*self.px_size)
+        temp_df = temp_df[temp_df.CellLength > self.minimum_length]
+        thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
+        temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
+        temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
         self.df = pd.concat([self.df,temp_df])
 
     def save_binary(self):
@@ -725,15 +753,16 @@ class borrelia_cell_segmentation:
             bw[coords[0],coords[1],coords[2]] = 1
             imsave(f'Binary/{file_key}-bw.tif',bw.astype('uint8'))
 
-    def return_df(self):
+    def return_df(self,save_params=False):
         df = self.df
-        IsExists = os.path.exists('Segmentation_Params.txt')
-        if IsExists:
-            os.remove('Segmentation_Params.txt')
-        with open('Segmentation_Params.txt', 'w') as f:
-            for key,item in self.segmentation_params.items():
-                f.write(f'{key}: {item}')
-                f.write('\n')
+        if save_params:
+            IsExists = os.path.exists('Segmentation_Params.txt')
+            if IsExists:
+                os.remove('Segmentation_Params.txt')
+            with open('Segmentation_Params.txt', 'w') as f:
+                for key,item in self.segmentation_params.items():
+                    f.write(f'{key}: {item}')
+                    f.write('\n')
         return df
     
     def make_demograph(self,color_map = 'ocean',lut_min = -2.5,lut_max = 3,figure_size = [5,3],savename = 'Cell',savedemo = 1):

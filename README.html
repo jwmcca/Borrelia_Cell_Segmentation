@@ -1,0 +1,578 @@
+<!DOCTYPE html><html><head>
+      <title>README</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:////Users/jmccausland/.vscode/extensions/shd101wyy.markdown-preview-enhanced-0.6.8/node_modules/@shd101wyy/mume/dependencies/katex/katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <style>
+      /**
+ * prism.js Github theme based on GitHub's theme.
+ * @author Sam Clarke
+ */
+code[class*="language-"],
+pre[class*="language-"] {
+  color: #333;
+  background: none;
+  font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  line-height: 1.4;
+
+  -moz-tab-size: 8;
+  -o-tab-size: 8;
+  tab-size: 8;
+
+  -webkit-hyphens: none;
+  -moz-hyphens: none;
+  -ms-hyphens: none;
+  hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+  padding: .8em;
+  overflow: auto;
+  /* border: 1px solid #ddd; */
+  border-radius: 3px;
+  /* background: #fff; */
+  background: #f5f5f5;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+  padding: .1em;
+  border-radius: .3em;
+  white-space: normal;
+  background: #f5f5f5;
+}
+
+.token.comment,
+.token.blockquote {
+  color: #969896;
+}
+
+.token.cdata {
+  color: #183691;
+}
+
+.token.doctype,
+.token.punctuation,
+.token.variable,
+.token.macro.property {
+  color: #333;
+}
+
+.token.operator,
+.token.important,
+.token.keyword,
+.token.rule,
+.token.builtin {
+  color: #a71d5d;
+}
+
+.token.string,
+.token.url,
+.token.regex,
+.token.attr-value {
+  color: #183691;
+}
+
+.token.property,
+.token.number,
+.token.boolean,
+.token.entity,
+.token.atrule,
+.token.constant,
+.token.symbol,
+.token.command,
+.token.code {
+  color: #0086b3;
+}
+
+.token.tag,
+.token.selector,
+.token.prolog {
+  color: #63a35c;
+}
+
+.token.function,
+.token.namespace,
+.token.pseudo-element,
+.token.class,
+.token.class-name,
+.token.pseudo-class,
+.token.id,
+.token.url-reference .token.variable,
+.token.attr-name {
+  color: #795da3;
+}
+
+.token.entity {
+  cursor: help;
+}
+
+.token.title,
+.token.title .token.punctuation {
+  font-weight: bold;
+  color: #1d3e81;
+}
+
+.token.list {
+  color: #ed6a43;
+}
+
+.token.inserted {
+  background-color: #eaffea;
+  color: #55a532;
+}
+
+.token.deleted {
+  background-color: #ffecec;
+  color: #bd2c00;
+}
+
+.token.bold {
+  font-weight: bold;
+}
+
+.token.italic {
+  font-style: italic;
+}
+
+
+/* JSON */
+.language-json .token.property {
+  color: #183691;
+}
+
+.language-markup .token.tag .token.punctuation {
+  color: #333;
+}
+
+/* CSS */
+code.language-css,
+.language-css .token.function {
+  color: #0086b3;
+}
+
+/* YAML */
+.language-yaml .token.atrule {
+  color: #63a35c;
+}
+
+code.language-yaml {
+  color: #183691;
+}
+
+/* Ruby */
+.language-ruby .token.function {
+  color: #333;
+}
+
+/* Markdown */
+.language-markdown .token.url {
+  color: #795da3;
+}
+
+/* Makefile */
+.language-makefile .token.symbol {
+  color: #795da3;
+}
+
+.language-makefile .token.variable {
+  color: #183691;
+}
+
+.language-makefile .token.builtin {
+  color: #0086b3;
+}
+
+/* Bash */
+.language-bash .token.keyword {
+  color: #0086b3;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: hsla(24, 20%, 50%,.08);
+  background: linear-gradient(to right, hsla(24, 20%, 50%,.1) 70%, hsla(24, 20%, 50%,0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+
+pre[data-line] .line-highlight:before, 
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: hsla(24, 20%, 50%,.4);
+  color: hsl(24, 20%, 95%);
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;background-color:#f0f0f0;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.markdown-preview .md-toc{padding:0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link p,.markdown-preview .md-toc .md-toc-link-wrapper .md-toc-link div{display:inline}.markdown-preview .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc{padding:0 16px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link{display:inline;padding:.25rem 0}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link p,html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper .md-toc-link div{display:inline}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc .md-toc .md-toc-link-wrapper.highlighted .md-toc-link{font-weight:800}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  300px/2);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <h1 class="mume-header" id="borrelia-cell-segmentation">Borrelia Cell Segmentation</h1>
+
+<h2 class="mume-header" id="preamble">Preamble</h2>
+
+<p>This is a pipeline developed to segment single <em>Borrelia</em> cells from phase contrast microscopy.</p>
+<p>Package is by Joshua McCausland in the Christine Jacobs-Wagner laboratory, 2023. Four functions (two primary functionalities: loading ND2 images and fluorescence background subtraction) are authored by Alexandros Papagiannakis, also in the Jacobs-Wagner laboratory.</p>
+<h3 class="mume-header" id="installation">Installation</h3>
+
+<p>From the private Jacobs-Wagner server, navigate to N:/Common/CodeRepository/Python in the terminal then run the line below.</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash">python -m pip <span class="token function">install</span> Borrelia_Cell_Segmentation/
+</pre><h2 class="mume-header" id="workflow">Workflow</h2>
+
+<ul>
+<li>
+<p>The logic of the pipeline is to call the class with your imaging parameters and segmentation options. It will initiate the process by making a blank dataframe.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python"><span class="token comment">#load the borrelia cell segmentation function.</span>
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> borrelia_cell_segmentation <span class="token keyword keyword-as">as</span> bsc
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> nd2_to_array
+
+<span class="token comment"># intialize the class by calling your specific conditions.</span>
+sc <span class="token operator">=</span> bsc<span class="token punctuation">(</span>px_size <span class="token operator">=</span> <span class="token number">0.065</span><span class="token punctuation">,</span> minimum_length <span class="token operator">=</span> <span class="token number">5</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>You then feed the filename and stack of phase contrast images to the class, where it will assess the threshold of all images in the stack, then label each mask with an independant ID.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase_images<span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Following, you call the class once more with the corresponding fluorescent images from your experiment. It will populate the internal dataframe with all cell metrics (cell coordinates, skeleton, a fluorscent linescan, mean intensity, etc.)</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>screen_cells<span class="token punctuation">(</span>signal_images<span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>When you are done analyzing all your images, you can export the final dataframe.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">df <span class="token operator">=</span> sc<span class="token punctuation">.</span>return_df<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</pre></li>
+</ul>
+<h3 class="mume-header" id="example-usage">Example usage</h3>
+
+<p>This script is optimzied to work with Nikon <em>nd2</em> files. If your microscopy setup exports <em>tif</em> files, make sure you convert those to a stack of float32 phase/fluorscent images before loading into the pipeline.</p>
+<p>Examples of testing thresholds and iterating through multiple different conditions are at the end of this document.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python"><span class="token keyword keyword-import">import</span> numpy <span class="token keyword keyword-as">as</span> np
+<span class="token keyword keyword-import">import</span> pandas <span class="token keyword keyword-as">as</span> pd
+<span class="token keyword keyword-from">from</span> matplotlib <span class="token keyword keyword-import">import</span> pyplot <span class="token keyword keyword-as">as</span> plt
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> borrelia_cell_segmentation <span class="token keyword keyword-as">as</span> bcs
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> nd2_to_array
+<span class="token keyword keyword-import">import</span> os<span class="token punctuation">,</span>glob
+
+filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">&apos;RawData/*.nd2&apos;</span><span class="token punctuation">)</span>
+sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span>back_sub <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token string">&apos;adaptive&apos;</span><span class="token punctuation">)</span>
+<span class="token keyword keyword-for">for</span> <span class="token builtin">file</span> <span class="token keyword keyword-in">in</span> filelist<span class="token punctuation">:</span>       
+    filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span><span class="token punctuation">.</span>removesuffix<span class="token punctuation">(</span><span class="token string">&apos;.nd2&apos;</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-print">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f&apos;Currently analyzing </span><span class="token interpolation"><span class="token punctuation">{</span>filename<span class="token punctuation">}</span></span><span class="token string">.&apos;</span></span><span class="token punctuation">)</span>
+    imgs <span class="token operator">=</span> nd2_to_array<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span>
+    images <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+    channels <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span>
+    phase <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    fluor <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    sc<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase<span class="token punctuation">)</span>
+    sc<span class="token punctuation">.</span>screen_cells<span class="token punctuation">(</span>fluor<span class="token punctuation">)</span>
+df <span class="token operator">=</span> sc<span class="token punctuation">.</span>return_df<span class="token punctuation">(</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_pickle<span class="token punctuation">(</span><span class="token string">&apos;Replicate_2.pkl&apos;</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_csv<span class="token punctuation">(</span><span class="token string">&apos;Replicate_2.csv&apos;</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>groupby<span class="token punctuation">(</span><span class="token string">&apos;filename&apos;</span><span class="token punctuation">)</span><span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</pre><p><img src="documentation/Example_DF_Output.png" alt="example_df_output"></p>
+<h2 class="mume-header" id="parameters">Parameters</h2>
+
+<h3 class="mume-header" id="initialization-options">Initialization options</h3>
+
+<p>When you initialize the script, you can provide custom inputs according to your experimental design. Below are the current options you can specify upon calling bsc().</p>
+<ul>
+<li><strong>minimum_size</strong>: This is the area in square pixels. This is an easy, quick filter to remove small particles from Otsu. Default is 500 px<sup>2</sup>.</li>
+<li><strong>minimum_length</strong>: This is the minimum cell length. <em>Borrelia</em> cells are very long and thus easy to filter by length. Default is 5 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>&#x3BC;</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">&#x3BC;</span></span></span></span>m.</li>
+<li><strong>maximum_width</strong>: The largest possible average cell width to screen for. Default is 0.55 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>&#x3BC;</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">&#x3BC;</span></span></span></span>m</li>
+<li><strong>px_size</strong>: Default is our lab&apos;s pixel size, 0.065 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>&#x3BC;</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">&#x3BC;</span></span></span></span>m/pixel.</li>
+<li><strong>instantaneous_max_width</strong>: This checks to see whether any abberations occur along the mask. No part of a <em>Borrelia</em> cell can be larger than the default value of 1 <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>&#x3BC;</mi></mrow><annotation encoding="application/x-tex">\mu</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal">&#x3BC;</span></span></span></span>m.</li>
+<li><strong>threshold</strong>: Specify the thresholding method. Options are <em>&apos;batch_otsu&apos;</em>, <em>&apos;otsu&apos;</em>, <em>&apos;multiotsu&apos;</em>, and <em>&apos;adaptive&apos;</em>. The default is <em>&apos;batch_otsu&apos;</em>.
+<ul>
+<li><em>&apos;batch_otsu&apos;</em>: This calculates a single otsu threshold over the entire image array together. Faster if you have many images that are similar in scale.</li>
+<li><em>&apos;otsu&apos;</em>: This iterates through every single image and calculates an Otsu threshold for each.</li>
+<li><em>&apos;multiotsu&apos;</em>: Calculates a single otsu threshold for the entire image array similar to &apos;batch_otsu&apos;. The difference is that this uses Numpy&apos;s multiotsu function, generating two thresholds given the histogram rather than one. I pick the lower of the two. This is useful if your phase contrast images have many bright spots that confound a single otsu.</li>
+<li><em>&apos;adaptive&apos;</em>: Uses an adaptive threshold by scanning the image with a 15-kernel window. Helpful in low dynamic range images, but it tends to cut cells short.</li>
+</ul>
+</li>
+<li><strong>thresh_adjust</strong>: if you want to change the Otsu threshold, make a multiplier. Default is 1, but can be 1.015 for example.</li>
+<li><strong>back_sub</strong>: Change to <code>True</code> if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.</li>
+<li><strong>otsu_bins</strong>: Change the number of bins for otsu thresholding calculation. Default is 25.</li>
+<li><strong>remove_out_of_focus_cells</strong>: Change to <code>False</code> if you don&apos;t want to remove cells that are out of focus. For the most part, this is useful for removing cells that are mostly background signal. This means if you are imaging a negative control, it will remove ALL the cells. Change to 0 when you have such a control present.</li>
+<li><strong>remove_linescans</strong>: Change to <code>True</code> if you don&apos;t want to include linescans in your analysis. If you are analyzing cells with an aberrant shape where skeletons won&apos;t be reliable, this is helpful to toggle off.</li>
+</ul>
+<h3 class="mume-header" id="class-functions">Class functions</h3>
+
+<ul>
+<li>
+<p>Intialization. Covered above in options. kwargs are optional inputs.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc <span class="token operator">=</span> bsc<span class="token punctuation">(</span><span class="token operator">**</span>kwargs<span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Threhold testing. I&apos;ve found that imaging on different microscopes or even differnet days can produce variable results between experiments. In this function, you can specify all of the input options above in various combinations to test how well they segment cells in a given condition. For this, you input:</p>
+<ul>
+<li><strong>filename</strong>. Required. This is for saving the files afterward for reference. I use the source filename of the condition I&apos;m testing.</li>
+<li><strong>phase_images</strong>. Required. This is the array of phase contrast images you&apos;re interested in testing.</li>
+<li><strong>image-num</strong>. If you have a particular image you are interested in testing, specify it here. Default is the first image in the array.</li>
+<li><strong>threshold</strong>. Options include <em>&apos;batch_otsu&apos;</em>, <em>&apos;otsu&apos;</em>, <em>&apos;multiotsu&apos;</em>, and <em>&apos;adaptive&apos;</em>. If nothing is specified, then the default thresholding method from initialization is called.</li>
+<li><strong>otsu_bins</strong>. The number of bins to calculate the Otsu threshold. Default is 25 bins.</li>
+<li><strong>thresh_adjust</strong>. You can specify a single value (such as 1, 1.5, 0.95, etc) that can adjust the calculated Otsu threshold if needed. Default is 1.<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>test_thresholding_method<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase_images<span class="token punctuation">,</span>image_num<span class="token operator">=</span><span class="token number">0</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">,</span>otsu_bins <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">,</span>thresh_adjust <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">)</span>
+</pre></li>
+</ul>
+</li>
+<li>
+<p>Calling. Use this to load a new set of phase contrast images and label them. Note that if you are iterating through several conditions, you can tweak thresholding parameters to accomodate each file if your experiment needs that.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase_images<span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">,</span>thresh_adjust <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">,</span>otsu_bins <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">,</span>minimum_length <span class="token operator">=</span> <span class="token boolean">None</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Meaurements. Call this after loading phase images to gather metrics on all current cells.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>screen_cells<span class="token punctuation">(</span>signal_images<span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Archive current masks. If you want to produce binary masks and just need to archive what the class has identified in phase images, then call this function instead of <code>screen_cells</code> above.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>archive_cells<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Save binary images. If you feel you need to manually segment the remaining masks to refiene analysis further, you can export the current state of all segmentations for further editing in FIJI/ImageJ. This relies on having <em>previously</em> run through all images with <strong>calling</strong> above, for it needs to know the shape of the binary structure to save with.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>save_binary<span class="token punctuation">(</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Read binary images. If you feel like you need to manually segment the remaining masks to refine analysis further, you can export the current state of all your segmentations, edit those masks as necessary, then read them back with the appriopriate filename and source phase images.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>read_binary<span class="token punctuation">(</span>binary_images<span class="token punctuation">,</span>filename<span class="token punctuation">,</span>phase_images<span class="token punctuation">)</span><span class="token punctuation">:</span>
+</pre></li>
+<li>
+<p>Return the pixel size for the experiment. I foudn that I want to retrieve the pixel size for downstream applications sometimes.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">pixel_size <span class="token operator">=</span> sc<span class="token punctuation">.</span>pixel_size
+</pre></li>
+<li>
+<p>Return the dataframe once analysis is complete. If <code>save_params</code> is set to <code>True</code>, this will also save a text files with <em>all</em> parameters used for segmentation for your reference (named &quot;Segmentation_Params.txt&quot;).</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">dataframe <span class="token operator">=</span> sc<span class="token punctuation">.</span>return_df<span class="token punctuation">(</span>save_params<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Load the parameters from a previous experiment. If you have a single list of parameters that you want to easily preserve between conditions or experiments, you can load the text file with the last batch of parameters. Simple specify the file path of the text file and it will load those parameters in.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>load_parameters<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span>
+</pre></li>
+<li>
+<p>Make a demograph of all cells in the dataframe. This will sort all entries by cell length then produce an array of linescan data, which is plotted with <code>imshow</code> and saved as a pdf. You can edit large scale details for this as shown in the code block&apos;s default values and further explained below. This also exports the demograph structure as well as the pyplot figure and axis if you want to play with the demograph in more detail.</p>
+<ul>
+<li><strong>color_map</strong>: Default is &apos;ocean,&apos; but it can be whatever python color map suits your needs best.</li>
+<li><strong>lut_min</strong>: The minimum Z-score to scale the color map. Default is -2.5.</li>
+<li><strong>lut_max</strong>: The maximum Z-score to scale the color map. Default is 3.</li>
+<li><strong>figure_size</strong>: The size of the figure in inches, w*h. Default is [5,3]. Supply as list or tuple.</li>
+<li><strong>savename</strong>: The name to save the demograph.</li>
+<li><strong>savedemo</strong>: Default is 1. If you don&apos;t want to save the demograph, change to 0.<pre data-role="codeBlock" data-info="python" class="language-python">demograph<span class="token punctuation">,</span> figure<span class="token punctuation">,</span> axis <span class="token operator">=</span> sc<span class="token punctuation">.</span>make_demograph<span class="token punctuation">(</span>color_map <span class="token operator">=</span> <span class="token string">&apos;ocean&apos;</span><span class="token punctuation">,</span>lut_min <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2.5</span><span class="token punctuation">,</span>lut_max <span class="token operator">=</span> <span class="token number">3</span><span class="token punctuation">,</span>figure_size <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token number">5</span><span class="token punctuation">,</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">,</span>savename <span class="token operator">=</span> <span class="token string">&apos;Cell&apos;</span><span class="token punctuation">,</span>savedemo<span class="token operator">=</span><span class="token number">1</span><span class="token punctuation">)</span>
+</pre></li>
+</ul>
+</li>
+<li>
+<p>In a number of cases in our lab, we wish to analyze the amount of signal integrated midcell for peptidoglycan stains. This bit of code will identify any peaks midcell from a smoothed linescan, analyze the fraction of integrated intensity midcell vs. the whole cell, and look to see whether there is any intensity difference between the two halves of the cell. You can specify the rolling average window for the smoothed linescan using <code>window_size</code>.<br>
+<br>
+As noted from the text above, this appends three new columns to the original dataframe: <em>smoothlinescan</em>, <em>peak_width</em>, <em>fraction_peak_intensity</em>, and <em>half_cell_difference</em>.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">dataframe <span class="token operator">=</span> sc<span class="token punctuation">.</span>analyze_linescan_signal<span class="token punctuation">(</span>window_size <span class="token operator">=</span> <span class="token number">10</span><span class="token punctuation">)</span> <span class="token comment">#int</span>
+</pre></li>
+<li>
+<p>Finally, if you wish to add onto an existing dataframe, or analyze a current dataframe with any of these additional functions you can load an old dataframe into the class by calling a filename string, from which it will load the file.<br>
+<strong>NOTE</strong>. The dataframe must have the columns specified above in the output from the example script.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">sc<span class="token punctuation">.</span>load_dataframe<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span> <span class="token comment">#string</span>
+</pre></li>
+</ul>
+<h3 class="mume-header" id="additional-examples">Additional Examples</h3>
+
+<h4 class="mume-header" id="threshold-testing">Threshold Testing</h4>
+
+<p>Below are a couple of code chunks showing how I would test the threshold parameters for a given condition. In this experiemnt, I have 8 ND2 files from 8 different conditions that segment differently. I first import my relevant packages then load the relevant phase image array. Note that the <strong>borrelia_cell_segmentation</strong> class is initialized here.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python"><span class="token keyword keyword-import">import</span> numpy <span class="token keyword keyword-as">as</span> np
+<span class="token keyword keyword-import">import</span> pandas <span class="token keyword keyword-as">as</span> pd
+<span class="token keyword keyword-from">from</span> matplotlib <span class="token keyword keyword-import">import</span> pyplot <span class="token keyword keyword-as">as</span> plt
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> borrelia_cell_segmentation <span class="token keyword keyword-as">as</span> bcs
+<span class="token keyword keyword-from">from</span> Borrelia_Cell_Segmentation <span class="token keyword keyword-import">import</span> nd2_to_array
+<span class="token keyword keyword-import">import</span> os<span class="token punctuation">,</span>glob
+<span class="token keyword keyword-import">import</span> time
+
+filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">&apos;RawData/*.nd2&apos;</span><span class="token punctuation">)</span>
+<span class="token builtin">file</span> <span class="token operator">=</span> filelist<span class="token punctuation">[</span><span class="token number">7</span><span class="token punctuation">]</span>
+sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span>back_sub <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token string">&apos;adaptive&apos;</span><span class="token punctuation">)</span>
+filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span><span class="token punctuation">.</span>removesuffix<span class="token punctuation">(</span><span class="token string">&apos;.nd2&apos;</span><span class="token punctuation">)</span>
+imgs <span class="token operator">=</span> nd2_to_array<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span>
+images <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+channels <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span>
+phase <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+</pre><p>Once the image array is loaded, I have a code chunk that next just calls <em>test_thresholding_methods</em> to experiment with my thresholding parameters until I dial in the best one for each condition. I have a series of comments above the line where I note what conditions worked best.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python"><span class="token triple-quoted-string string">&apos;&apos;&apos;
+Final thresholds that I have picked for a batch_otsu:
+    -Bb144_1hr: 1.7
+    -Bb144_2hr: 1.4
+    -Bb144_4hr: 0.95
+    -Bb144_8hr: 1.85
+    -Bb54_1hr: 1.1, otsu_bins = 100 
+    -Bb54_2hr: 1.7
+    -Bb54_4hr: 1.65
+    -Bb54_8hr: 1.8
+&apos;&apos;&apos;</span>
+sc<span class="token punctuation">.</span>test_thresholding_method<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase<span class="token punctuation">,</span>image_num <span class="token operator">=</span> <span class="token number">30</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token string">&apos;multi_otsu&apos;</span><span class="token punctuation">,</span>thresh_adjust <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>otsu_bins <span class="token operator">=</span> <span class="token number">100</span><span class="token punctuation">)</span>
+</pre><p><img src="documentation/Threshold_Testing.png" alt="example_threshold_output"></p>
+<h3 class="mume-header" id="iterating-through-multiple-conditions">Iterating through multiple conditions</h3>
+
+<p>Once each individualized condition is determined, you can easily then setup a for loop to apply each unique thresholding case to the relevant files. In my case, I define a dictionary with the filename keys specifying what my thresholding methods are.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">&apos;RawData/*.nd2&apos;</span><span class="token punctuation">)</span>
+
+<span class="token comment"># I list the customized otsu threshold then the number of bins for each, </span>
+<span class="token comment"># determined by the threshold setup above.</span>
+strain_specifications <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">&apos;Bb144_1hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1.7</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb144_2hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1.4</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb144_4hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">0.95</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb144_8hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;multi_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">100</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb54_1hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;adaptive&apos;</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb54_2hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1.7</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">5</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb54_4hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1.65</span><span class="token punctuation">,</span><span class="token number">25</span><span class="token punctuation">,</span><span class="token number">6</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+    <span class="token string">&apos;Bb54_8hr&apos;</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">&apos;multi_otsu&apos;</span><span class="token punctuation">,</span><span class="token number">1</span><span class="token punctuation">,</span><span class="token number">100</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">]</span>
+<span class="token punctuation">}</span>
+
+sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span>back_sub <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">)</span>
+<span class="token keyword keyword-for">for</span> <span class="token builtin">file</span> <span class="token keyword keyword-in">in</span> filelist<span class="token punctuation">:</span> 
+    start <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>    
+    filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span><span class="token punctuation">.</span>removesuffix<span class="token punctuation">(</span><span class="token string">&apos;.nd2&apos;</span><span class="token punctuation">)</span>
+    strain_specs <span class="token operator">=</span> strain_specifications<span class="token punctuation">[</span>filename<span class="token punctuation">]</span>
+    <span class="token keyword keyword-print">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f&apos;Currently analyzing </span><span class="token interpolation"><span class="token punctuation">{</span>filename<span class="token punctuation">}</span></span><span class="token string">.&apos;</span></span><span class="token punctuation">)</span>
+    imgs <span class="token operator">=</span> nd2_to_array<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span>
+    images <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+    channels <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span>
+    phase <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    fluor <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+
+    sc<span class="token punctuation">(</span>filename<span class="token punctuation">,</span>phase<span class="token punctuation">,</span>threshold <span class="token operator">=</span> strain_specs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">,</span>thresh_adjust<span class="token operator">=</span>strain_specs<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span>otsu_bins <span class="token operator">=</span> strain_specs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span><span class="token punctuation">,</span>minimum_length <span class="token operator">=</span> strain_specs<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    sc<span class="token punctuation">.</span>screen_cells<span class="token punctuation">(</span>fluor<span class="token punctuation">)</span>
+    end <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-print">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f&apos;</span><span class="token interpolation"><span class="token punctuation">{</span>filename<span class="token punctuation">}</span></span><span class="token string"> took </span><span class="token interpolation"><span class="token punctuation">{</span><span class="token punctuation">(</span>end<span class="token operator">-</span>start<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">60</span><span class="token punctuation">:</span><span class="token format-spec">.2f</span><span class="token punctuation">}</span></span><span class="token string"> min.&apos;</span></span><span class="token punctuation">)</span>
+df <span class="token operator">=</span> sc<span class="token punctuation">.</span>return_df<span class="token punctuation">(</span><span class="token punctuation">)</span>
+sc<span class="token punctuation">.</span>save_binary<span class="token punctuation">(</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_pickle<span class="token punctuation">(</span><span class="token string">&apos;Replicate_1.pkl&apos;</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_csv<span class="token punctuation">(</span><span class="token string">&apos;Replicate.csv&apos;</span><span class="token punctuation">)</span>
+</pre><h3 class="mume-header" id="loading-binary-masks-for-analysis">Loading binary masks for analysis.</h3>
+
+<p>In my case, I also wanted to refine my segmentations with manual curation. I exported all the binary masks, edited them in FIJI, then loaded them again here for my final dataframe. Edit as necessary for your purposes.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">&apos;RawData/*.nd2&apos;</span><span class="token punctuation">)</span>
+binary_filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">&apos;Binary/*.tif&apos;</span><span class="token punctuation">)</span>
+
+sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span>back_sub <span class="token operator">=</span> <span class="token number">1</span><span class="token punctuation">,</span>threshold <span class="token operator">=</span> <span class="token string">&apos;batch_otsu&apos;</span><span class="token punctuation">)</span>
+<span class="token keyword keyword-for">for</span> <span class="token builtin">file</span><span class="token punctuation">,</span>binary <span class="token keyword keyword-in">in</span> <span class="token builtin">zip</span><span class="token punctuation">(</span>filelist<span class="token punctuation">,</span>binary_filelist<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    start <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span><span class="token punctuation">.</span>removesuffix<span class="token punctuation">(</span><span class="token string">&apos;.nd2&apos;</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-print">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f&apos;Currently analyzing </span><span class="token interpolation"><span class="token punctuation">{</span>filename<span class="token punctuation">}</span></span><span class="token string">.&apos;</span></span><span class="token punctuation">)</span>
+    imgs <span class="token operator">=</span> nd2_to_array<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span>
+    bws <span class="token operator">=</span> imread<span class="token punctuation">(</span>binary<span class="token punctuation">)</span>
+    images <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">2</span><span class="token punctuation">]</span>
+    channels <span class="token operator">=</span> imgs<span class="token punctuation">[</span><span class="token number">3</span><span class="token punctuation">]</span>
+    phase <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    fluor <span class="token operator">=</span> np<span class="token punctuation">.</span>array<span class="token punctuation">(</span><span class="token punctuation">[</span>image<span class="token punctuation">[</span>channels<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token string">&apos;float32&apos;</span><span class="token punctuation">)</span> <span class="token keyword keyword-for">for</span> _<span class="token punctuation">,</span>image <span class="token keyword keyword-in">in</span> images<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    sc<span class="token punctuation">.</span>read_binary<span class="token punctuation">(</span>bws<span class="token punctuation">,</span>filename<span class="token punctuation">,</span>phase<span class="token punctuation">)</span>
+    sc<span class="token punctuation">.</span>screen_cells<span class="token punctuation">(</span>fluor<span class="token punctuation">)</span>
+    end <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-print">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f&apos;</span><span class="token interpolation"><span class="token punctuation">{</span>filename<span class="token punctuation">}</span></span><span class="token string"> took </span><span class="token interpolation"><span class="token punctuation">{</span><span class="token punctuation">(</span>end<span class="token operator">-</span>start<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">60</span><span class="token punctuation">:</span><span class="token format-spec">.2f</span><span class="token punctuation">}</span></span><span class="token string"> min.&apos;</span></span><span class="token punctuation">)</span>
+df <span class="token operator">=</span> sc<span class="token punctuation">.</span>return_df<span class="token punctuation">(</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_pickle<span class="token punctuation">(</span><span class="token string">&apos;Replicate_1.pkl&apos;</span><span class="token punctuation">)</span>
+df<span class="token punctuation">.</span>to_csv<span class="token punctuation">(</span><span class="token string">&apos;Replicate.csv&apos;</span><span class="token punctuation">)</span>
+</pre><h3 class="mume-header" id="making-demographs-from-multiple-conditions">Making demographs from multiple conditions</h3>
+
+<p>Since the class function only makes <em>one</em> demograph from the entire dataframe, you should also be able to make your own demograph if you have more than one condition. Below is just an example code chunk of how I make my demographs.</p>
+<pre data-role="codeBlock" data-info="python" class="language-python">cell_df <span class="token operator">=</span> pd<span class="token punctuation">.</span>read_pickle<span class="token punctuation">(</span><span class="token string">&apos;Replicate_1.pkl&apos;</span><span class="token punctuation">)</span>
+px_size <span class="token operator">=</span> <span class="token number">0.065</span>
+
+fig<span class="token punctuation">,</span> axs <span class="token operator">=</span> plt<span class="token punctuation">.</span>subplots<span class="token punctuation">(</span>nrows <span class="token operator">=</span> <span class="token number">2</span><span class="token punctuation">,</span>ncols <span class="token operator">=</span> <span class="token number">4</span><span class="token punctuation">,</span>figsize<span class="token operator">=</span><span class="token punctuation">(</span><span class="token number">20</span><span class="token punctuation">,</span><span class="token number">10</span><span class="token punctuation">)</span><span class="token punctuation">,</span>layout <span class="token operator">=</span> <span class="token string">&apos;constrained&apos;</span><span class="token punctuation">)</span>
+<span class="token keyword keyword-for">for</span> ax<span class="token punctuation">,</span>grp <span class="token keyword keyword-in">in</span> <span class="token builtin">zip</span><span class="token punctuation">(</span>axs<span class="token punctuation">.</span>ravel<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>df<span class="token punctuation">.</span>groupby<span class="token punctuation">(</span><span class="token string">&apos;filename&apos;</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    grp_df <span class="token operator">=</span> grp<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span>
+    grp_df<span class="token punctuation">[</span><span class="token string">&apos;sizes&apos;</span><span class="token punctuation">]</span> <span class="token operator">=</span> grp_df<span class="token punctuation">.</span>linescan<span class="token punctuation">.</span><span class="token builtin">apply</span><span class="token punctuation">(</span><span class="token keyword keyword-lambda">lambda</span> x<span class="token punctuation">:</span> x<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    grp_df <span class="token operator">=</span> grp_df<span class="token punctuation">.</span>sort_values<span class="token punctuation">(</span><span class="token string">&apos;sizes&apos;</span><span class="token punctuation">)</span>
+    grp_df <span class="token operator">=</span> grp_df<span class="token punctuation">.</span>reset_index<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+
+    demo <span class="token operator">=</span> np<span class="token punctuation">.</span>empty<span class="token punctuation">(</span><span class="token punctuation">[</span>grp_df<span class="token punctuation">.</span>sizes<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">,</span>grp_df<span class="token punctuation">.</span>shape<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    demo<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">]</span> <span class="token operator">=</span> np<span class="token punctuation">.</span>nan
+    inds <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    half_width <span class="token operator">=</span> np<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span>grp_df<span class="token punctuation">.</span>sizes<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">)</span>
+    <span class="token keyword keyword-for">for</span> index<span class="token punctuation">,</span>row <span class="token keyword keyword-in">in</span> grp_df<span class="token punctuation">.</span>iterrows<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        linescan <span class="token operator">=</span> row<span class="token punctuation">.</span>linescan
+        linescan_bottom <span class="token operator">=</span> np<span class="token punctuation">.</span>floor<span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>linescan<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">)</span>
+        linescan_top <span class="token operator">=</span> np<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span><span class="token builtin">len</span><span class="token punctuation">(</span>linescan<span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span>astype<span class="token punctuation">(</span><span class="token builtin">int</span><span class="token punctuation">)</span>
+        demo<span class="token punctuation">[</span>half_width<span class="token operator">-</span>linescan_bottom<span class="token punctuation">:</span>half_width<span class="token operator">+</span>linescan_top<span class="token punctuation">,</span>index<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">(</span>linescan<span class="token operator">-</span>linescan<span class="token punctuation">.</span>mean<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token operator">/</span>linescan<span class="token punctuation">.</span>std<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    cax <span class="token operator">=</span> ax<span class="token punctuation">.</span>imshow<span class="token punctuation">(</span>demo<span class="token punctuation">,</span>cmap<span class="token operator">=</span><span class="token string">&apos;ocean&apos;</span><span class="token punctuation">,</span>vmin <span class="token operator">=</span> <span class="token operator">-</span><span class="token number">2.5</span><span class="token punctuation">,</span>vmax<span class="token operator">=</span><span class="token number">3</span><span class="token punctuation">,</span> aspect<span class="token operator">=</span><span class="token string">&quot;auto&quot;</span><span class="token punctuation">)</span>
+    midpoint <span class="token operator">=</span> np<span class="token punctuation">.</span>ceil<span class="token punctuation">(</span><span class="token punctuation">(</span>grp_df<span class="token punctuation">.</span>sizes<span class="token punctuation">.</span><span class="token builtin">max</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">+</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">)</span>
+    ytick_locations <span class="token operator">=</span> <span class="token punctuation">[</span>midpoint<span class="token operator">+</span>midpoint<span class="token punctuation">,</span>midpoint<span class="token operator">-</span>midpoint<span class="token punctuation">,</span> midpoint<span class="token operator">-</span>midpoint<span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">,</span> midpoint<span class="token punctuation">,</span> midpoint<span class="token operator">+</span>midpoint<span class="token operator">/</span><span class="token number">2</span><span class="token punctuation">]</span>
+    ax<span class="token punctuation">.</span>yaxis<span class="token punctuation">.</span>set_ticks<span class="token punctuation">(</span>ytick_locations<span class="token punctuation">,</span>np<span class="token punctuation">.</span><span class="token builtin">round</span><span class="token punctuation">(</span><span class="token punctuation">(</span>ytick_locations<span class="token operator">-</span>midpoint<span class="token punctuation">)</span><span class="token operator">*</span>px_size<span class="token punctuation">,</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    ax<span class="token punctuation">.</span>set_ylabel<span class="token punctuation">(</span><span class="token string">&apos;Cell position ($\mu$m)&apos;</span><span class="token punctuation">)</span>
+    ax<span class="token punctuation">.</span>set_xlabel<span class="token punctuation">(</span><span class="token string">&apos;Cell number&apos;</span><span class="token punctuation">)</span>
+    ax<span class="token punctuation">.</span>set_title<span class="token punctuation">(</span>grp<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+    ax<span class="token punctuation">.</span>spines<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">&apos;top&apos;</span><span class="token punctuation">,</span><span class="token string">&apos;right&apos;</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>set_visible<span class="token punctuation">(</span><span class="token boolean">False</span><span class="token punctuation">)</span>
+    ax<span class="token punctuation">.</span>spines<span class="token punctuation">[</span><span class="token punctuation">[</span><span class="token string">&apos;bottom&apos;</span><span class="token punctuation">,</span><span class="token string">&apos;left&apos;</span><span class="token punctuation">]</span><span class="token punctuation">]</span><span class="token punctuation">.</span>set_linewidth<span class="token punctuation">(</span><span class="token number">1.2</span><span class="token punctuation">)</span>
+
+    fig<span class="token punctuation">.</span>tight_layout<span class="token punctuation">(</span>h_pad<span class="token operator">=</span><span class="token number">2.5</span><span class="token punctuation">)</span>
+    fig<span class="token punctuation">.</span>subplots_adjust<span class="token punctuation">(</span>right<span class="token operator">=</span><span class="token number">0.8</span><span class="token punctuation">)</span>
+cbar_ax <span class="token operator">=</span> fig<span class="token punctuation">.</span>add_axes<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token number">0.85</span><span class="token punctuation">,</span> <span class="token number">0.35</span><span class="token punctuation">,</span> <span class="token number">0.015</span><span class="token punctuation">,</span> <span class="token number">0.3</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+fig<span class="token punctuation">.</span>colorbar<span class="token punctuation">(</span>cax<span class="token punctuation">,</span> cax<span class="token operator">=</span>cbar_ax<span class="token punctuation">,</span>label<span class="token operator">=</span><span class="token string">&apos;Z Score&apos;</span><span class="token punctuation">)</span>
+plt<span class="token punctuation">.</span>savefig<span class="token punctuation">(</span><span class="token string">&apos;AllDemos.pdf&apos;</span><span class="token punctuation">,</span>dpi<span class="token operator">=</span><span class="token number">600</span><span class="token punctuation">)</span>
+</pre><p><img src="documentation/Demo_Examples.png" alt="example_demograph_output"></p>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>

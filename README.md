@@ -10,6 +10,19 @@ From the private Jacobs-Wagner server, navigate to N:/Common/CodeRepository/Pyth
 python -m pip install Borrelia_Cell_Segmentation/
 ```
 
+If you want to install a version update of this code and upgrade the version you *currently* have, you can run this line.
+```bash
+python -m pip install Borrelia_Cell_Segmentation/ -U
+```
+
+## Patch 1.1, 2023-07-21
+General workflow improvements 
+1) Calling the class is more streamlined with all arguments defined in the line rather than used as **kwargs.
+2) Made a new function named archive_cells, when one needs to produce binary masks without any additional screening parameters.
+3) Added the option to remove linescans from analysis consideration.
+4) Normalized intensity by cell area is now incorporated as part of the base code.
+5) If the code detects saturated pixels in cell masks, those masks are removed from consideration.
+
 ## Workflow
 - The logic of the pipeline is to call the class with your imaging parameters and segmentation options. It will initiate the process by making a blank dataframe.
 
@@ -82,9 +95,10 @@ When you initialize the script, you can provide custom inputs according to your 
     - *'multiotsu'*: Calculates a single otsu threshold for the entire image array similar to 'batch_otsu'. The difference is that this uses Numpy's multiotsu function, generating two thresholds given the histogram rather than one. I pick the lower of the two. This is useful if your phase contrast images have many bright spots that confound a single otsu.
     - *'adaptive'*: Uses an adaptive threshold by scanning the image with a 15-kernel window. Helpful in low dynamic range images, but it tends to cut cells short. 
 - **thresh_adjust**: if you want to change the Otsu threshold, make a multiplier. Default is 1, but can be 1.015 for example.
-- **back_sub**: Change to 1 if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.
+- **back_sub**: Change to ```True``` if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.
 - **otsu_bins**: Change the number of bins for otsu thresholding calculation. Default is 25.
-- **Remove_out_of_focus_cells**: Change to 0 if you don't want to remove cells that are out of focus. For the most part, this is useful for removing cells that are mostly background signal. This means if you are imaging a negative control, it will remove ALL the cells. Change to 0 when you have such a control present.
+- **remove_out_of_focus_cells**: Change to ```False``` if you don't want to remove cells that are out of focus. For the most part, this is useful for removing cells that are mostly background signal. This means if you are imaging a negative control, it will remove ALL the cells. Change to 0 when you have such a control present.
+- **remove_linescans**: Change to ```True``` if you don't want to include linescans in your analysis. If you are analyzing cells with an aberrant shape where skeletons won't be reliable, this is helpful to toggle off.
 
 ### Class functions
 - Intialization. Covered above in options. kwargs are optional inputs.
@@ -113,6 +127,11 @@ When you initialize the script, you can provide custom inputs according to your 
     sc.screen_cells(signal_images)
     ```
 
+- Archive current masks. If you want to produce binary masks and just need to archive what the class has identified in phase images, then call this function instead of ```screen_cells``` above.
+    ```python
+    sc.archive_cells()
+    ```
+
 - Save binary images. If you feel you need to manually segment the remaining masks to refiene analysis further, you can export the current state of all segmentations for further editing in FIJI/ImageJ. This relies on having *previously* run through all images with **calling** above, for it needs to know the shape of the binary structure to save with.
     ```python
     sc.save_binary()
@@ -127,9 +146,9 @@ When you initialize the script, you can provide custom inputs according to your 
     ```python
     pixel_size = sc.pixel_size
     ```
-- Return the dataframe once analysis is complete. This will also save a text files with *all* parameters used for segmentation for your reference (named "Segmentation_Params.txt").
+- Return the dataframe once analysis is complete. If ```save_params``` is set to ```True```, this will also save a text files with *all* parameters used for segmentation for your reference (named "Segmentation_Params.txt").
     ```python
-    dataframe = sc.return_df()
+    dataframe = sc.return_df(save_params=False)
     ```
 
 - Load the parameters from a previous experiment. If you have a single list of parameters that you want to easily preserve between conditions or experiments, you can load the text file with the last batch of parameters. Simple specify the file path of the text file and it will load those parameters in.
