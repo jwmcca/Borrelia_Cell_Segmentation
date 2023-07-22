@@ -4,7 +4,7 @@ This is a pipeline developed to segment single *Borrelia* cells from phase contr
 
 Package is by Joshua McCausland in the Christine Jacobs-Wagner laboratory, 2023. Four functions (two primary functionalities: loading ND2 images and fluorescence background subtraction) are authored by Alexandros Papagiannakis, also in the Jacobs-Wagner laboratory.
 
-###Installation
+### Installation
 From the private Jacobs-Wagner server, navigate to N:/Common/CodeRepository/Python in the terminal then run the line below.
 ```bash
 python -m pip install Borrelia_Cell_Segmentation/
