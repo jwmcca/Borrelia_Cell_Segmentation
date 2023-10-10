@@ -271,7 +271,19 @@ pre[data-line] .line-highlight[data-end]:after {
 
 <p>From the private Jacobs-Wagner server, navigate to N:/Common/CodeRepository/Python in the terminal then run the line below.</p>
 <pre data-role="codeBlock" data-info="bash" class="language-bash">python -m pip <span class="token function">install</span> Borrelia_Cell_Segmentation/
-</pre><h2 class="mume-header" id="workflow">Workflow</h2>
+</pre><p>If you want to install a version update of this code and upgrade the version you <em>currently</em> have, you can run this line.</p>
+<pre data-role="codeBlock" data-info="bash" class="language-bash">python -m pip <span class="token function">install</span> Borrelia_Cell_Segmentation/ -U
+</pre><h2 class="mume-header" id="patch-11-2023-07-21">Patch 1.1, 2023-07-21</h2>
+
+<p>General workflow improvements</p>
+<ol>
+<li>Calling the class is more streamlined with all arguments defined in the line rather than used as **kwargs.</li>
+<li>Made a new function named archive_cells, when one needs to produce binary masks without any additional screening parameters.</li>
+<li>Added the option to remove linescans from analysis consideration.</li>
+<li>Normalized intensity by cell area is now incorporated as part of the base code.</li>
+<li>If the code detects saturated pixels in cell masks, those masks are removed from consideration.</li>
+</ol>
+<h2 class="mume-header" id="workflow">Workflow</h2>
 
 <ul>
 <li>

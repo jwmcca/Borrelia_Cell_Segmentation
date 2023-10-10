@@ -14,6 +14,9 @@ import itertools
 from nd2reader import ND2Reader
 from scipy.signal import find_peaks, peak_widths
 from matplotlib import pyplot as plt
+from Borrelia_Cell_Segmentation.medialaxis import get_medial_axis,get_angle_from_slope
+from pandarallel import pandarallel
+
 import warnings
 warnings.filterwarnings('ignore')
 
@@ -145,6 +148,32 @@ def measure_thickness(sensor,cell_coord,skel):
     distance = cv2.distanceTransform(cell_only.astype(np.uint8), distanceType=cv2.DIST_L2, maskSize=5).astype(np.float32)
     thickness = cv2.multiply(distance, skel_only.astype(np.float32))
     return thickness[skel_only!=0]
+
+def calc_medial_axis(cell_coord,px_size):
+    cell = cell_coord[-2:]
+    coord_x_min = cell[0].min()
+    coord_y_min = cell[1].min()
+    cell[0] = cell[0] - coord_x_min + 10
+    cell[1] = cell[1] - coord_y_min + 10
+
+    bw = np.full([cell[0].max()+20,cell[1].max()+20],0)
+    bw[cell[0],cell[1]] = 1
+
+    bw = binary_dilation(binary_dilation(bw))
+    try:
+        df = get_medial_axis(bw,radius_px=7)
+
+        df = df.iloc[2:-3]
+        df['x_shift'] = df.x.shift(-1,fill_value=0)
+        df['y_shift'] = df.y.shift(-1,fill_value=0)
+        shift = np.sqrt(np.abs(df[['x','x_shift']].diff(axis=1).x_shift)**2 + np.abs(df[['y','y_shift']].diff(axis=1).y_shift)**2)
+        df['distance'] = shift
+        df['distance'] = df['distance'].shift(1,fill_value=0)*px_size
+        df['arc_length'] = df.distance.cumsum()
+        
+        return np.vstack([df.x.values,df.y.values]),df.arc_length.max(),df.arc_length.values
+    except:
+        return [[0],[0]],0,[0]
 
 def nd2_to_array(images_path):
     """
@@ -451,7 +480,7 @@ class borrelia_cell_segmentation:
     '''
     def __init__(self,mimimum_size = 500,minimum_length = 5,maximum_width = 0.55,px_size = 0.065,
                  instantaneous_max_width = 1, back_sub = False,threshold = 'batch_otsu',thresh_adjust = 1,otsu_bins = 25,
-                 remove_out_of_focus_cells = True,remove_linescans = False):
+                 remove_out_of_focus_cells = True,remove_linescans = True,use_medial_axis = True,multiprocessing=False):
         args = {'minimum_size': mimimum_size,
                          'minimum_length': minimum_length,
                          'maximum_width': maximum_width,
@@ -462,7 +491,9 @@ class borrelia_cell_segmentation:
                          'thresh_adjust': thresh_adjust,
                          'otsu_bins': otsu_bins,
                          'remove_out_of_focus_cells': remove_out_of_focus_cells,
-                         'remove_linescans': remove_linescans}
+                         'remove_linescans': remove_linescans,
+                         'use_medial_axis': use_medial_axis,
+                         'multiprocessing': multiprocessing}
         
         self.segmentation_params = args
         self.minimum_size = mimimum_size
@@ -476,6 +507,8 @@ class borrelia_cell_segmentation:
         self.threshold_method = threshold
         self.remove_out_of_focus_cells = remove_out_of_focus_cells
         self.remove_linescans = remove_linescans
+        self.medial_axis = use_medial_axis
+        self.multiprocessing = multiprocessing
         self.df = pd.DataFrame()
 
     def load_parameters(self,file):
@@ -611,19 +644,18 @@ class borrelia_cell_segmentation:
         
         ccs = label(bw)
         del bw
-        cumulative_max_value = 1
+        max_val = 0
         for image_slice in ccs:
             component_sizes = np.bincount(image_slice.ravel())
             too_small = component_sizes < self.minimum_size
             too_small_mask = too_small[image_slice]
             image_slice[too_small_mask] = 0
-            for id in np.unique(image_slice[image_slice>0]):
-                image_slice[image_slice == id] = cumulative_max_value
-                cumulative_max_value += 1
+            image_slice = image_slice + max_val
+            image_slice[image_slice == max_val] = 0
+            max_val += np.max(image_slice)
 
         for idx in np.arange(ccs.shape[0]):
             ccs[idx] = clear_border(ccs[idx],buffer_size = 5)
-
 
         skeletons = skeletonize(ccs > 0).astype('int64')
         np.putmask(skeletons,skeletons,ccs)
@@ -645,14 +677,18 @@ class borrelia_cell_segmentation:
         self.filename = filename
         self.sensor = phase_images.shape
         bw = binary_images > 0
-        bw = bw.astype('int')
+        bw = bw.astype('uint8')
         ccs = label(bw)
         del bw
-        cumulative_max_value = 1
+        max_val = 0
         for image_slice in ccs:
-            for id in np.unique(image_slice[image_slice>0]):
-                image_slice[image_slice == id] = cumulative_max_value
-                cumulative_max_value += 1
+            component_sizes = np.bincount(image_slice.ravel())
+            too_small = component_sizes < self.minimum_size
+            too_small_mask = too_small[image_slice]
+            image_slice[too_small_mask] = 0
+            image_slice = image_slice + max_val
+            image_slice[image_slice == max_val] = 0
+            max_val += np.max(image_slice)
         
         skeletons = skeletonize(ccs > 0).astype('int64')
         np.putmask(skeletons,skeletons,ccs)
@@ -681,12 +717,41 @@ class borrelia_cell_segmentation:
             nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
             temp_df = temp_df[nodes == 2]
         thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
+        temp_df['thickness'] = thickness*self.px_size*2
         temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
         max_width = thickness.apply(lambda x: 2*np.max(x)*self.px_size)
+        if self.back_sub:
+            #bkg_imgs = []
+            for i in np.arange(self.sensor[0]):
+                bkg_val = simple_background_estimation(self.phase[i],signal_images[i])
+                #bkg_imgs.append(signal_images[i] - bkg_val)
+                signal_images[i] = signal_images[i] - bkg_val
+            #signal_images = np.array(bkg_imgs)
+            #del bkg_imgs
+        del self.phase
+
+        if self.medial_axis:
+            temp_df['cell_im'] = temp_df.apply(lambda row: signal_images[row.frame-1,row.CellCoord[1].min()-10:row.CellCoord[1].max()+10,row.CellCoord[2].min()-10:row.CellCoord[2].max()+10],axis=1)
+            #medial_axis_results = temp_df.CellCoord.apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
+            if self.multiprocessing:
+                pandarallel.initialize(progress_bar=True)
+                medial_axis_results = temp_df.CellCoord.parallel_apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
+            else:
+                medial_axis_results = temp_df.CellCoord.apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
+            temp_df['medialaxis'] = medial_axis_results.apply(lambda x: x[0])
+            temp_df['medial_length'] = medial_axis_results.apply(lambda x: x[1])
+            temp_df['arc_length'] = medial_axis_results.apply(lambda x: x[2])
+            medial_check = temp_df.medial_length.apply(lambda x: True if x > 0 else False)
+            temp_df = temp_df[medial_check]
+            temp_df['linescan'] = linescan = temp_df.apply(lambda row: row.cell_im[row.medialaxis[1].astype('int'),row.medialaxis[0].astype('int')],axis=1)
+
+
         if self.remove_linescans:
             temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
         else:
             temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1) | (max_width < self.inst_max_width)]
+
+
         saturated =  temp_df.CellCoord.apply(lambda x: False if signal_images[x[0],x[1],x[2]].max() == 2**16-1 else True)
         temp_df = temp_df[saturated]
         if self.remove_out_of_focus_cells:
@@ -702,15 +767,7 @@ class borrelia_cell_segmentation:
                 bkg_sub[i] = back_sub(self.phase[i],signal_images[i])
             signal_images = bkg_sub
         '''
-        if self.back_sub:
-            #bkg_imgs = []
-            for i in np.arange(self.sensor[0]):
-                bkg_val = simple_background_estimation(self.phase[i],signal_images[i])
-                #bkg_imgs.append(signal_images[i] - bkg_val)
-                signal_images[i] = signal_images[i] - bkg_val
-            #signal_images = np.array(bkg_imgs)
-            #del bkg_imgs
-        del self.phase
+
 
         if not self.remove_linescans:
             temp_df['traced_skel_coords'] = temp_df.skel_coords.apply(lambda x: parse_skeleton(self.sensor[1:],x[1:]))
@@ -719,6 +776,7 @@ class borrelia_cell_segmentation:
                 print('There are no cells to screen!')
                 return
             temp_df['linescan'] = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
+        
         temp_df['Mean_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].mean())
         temp_df['Int_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].sum())
         temp_df['Norm_Intens_Length'] = temp_df['Int_Intens'].div(temp_df['CellLength'])
