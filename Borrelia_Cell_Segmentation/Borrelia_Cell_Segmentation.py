@@ -16,6 +16,7 @@ from scipy.signal import find_peaks, peak_widths
 from matplotlib import pyplot as plt
 from Borrelia_Cell_Segmentation.medialaxis import get_medial_axis,get_angle_from_slope
 from pandarallel import pandarallel
+pandarallel.initialize(progress_bar=False)
 
 import warnings
 warnings.filterwarnings('ignore')
@@ -732,19 +733,24 @@ class borrelia_cell_segmentation:
 
         if self.medial_axis:
             temp_df['cell_im'] = temp_df.apply(lambda row: signal_images[row.frame-1,row.CellCoord[1].min()-10:row.CellCoord[1].max()+10,row.CellCoord[2].min()-10:row.CellCoord[2].max()+10],axis=1)
+            cell_check_x = temp_df.apply(lambda row: True if row.cell_im.shape[0] > 5 else False,axis =1)
+            temp_df = temp_df[cell_check_x]
+            cell_check_y = temp_df.apply(lambda row: True if row.cell_im.shape[1] > 5 else False,axis =1)
+            temp_df = temp_df[cell_check_y]
             #medial_axis_results = temp_df.CellCoord.apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
             if self.multiprocessing:
-                pandarallel.initialize(progress_bar=True)
+                #pandarallel.initialize(progress_bar=True)
                 medial_axis_results = temp_df.CellCoord.parallel_apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
             else:
+                print("Currently calculating medial axes...")
                 medial_axis_results = temp_df.CellCoord.apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
             temp_df['medialaxis'] = medial_axis_results.apply(lambda x: x[0])
             temp_df['medial_length'] = medial_axis_results.apply(lambda x: x[1])
             temp_df['arc_length'] = medial_axis_results.apply(lambda x: x[2])
             medial_check = temp_df.medial_length.apply(lambda x: True if x > 0 else False)
             temp_df = temp_df[medial_check]
-            temp_df['linescan'] = linescan = temp_df.apply(lambda row: row.cell_im[row.medialaxis[1].astype('int'),row.medialaxis[0].astype('int')],axis=1)
-
+            #try:
+            temp_df['linescan'] = temp_df.apply(lambda row: row.cell_im[row.medialaxis[1].astype('int'),row.medialaxis[0].astype('int')],axis=1)
 
         if self.remove_linescans:
             temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
@@ -777,6 +783,7 @@ class borrelia_cell_segmentation:
                 return
             temp_df['linescan'] = temp_df.apply(lambda row: signal_images[np.repeat(row.frame-1,len(row.traced_skel_coords[0])),row.traced_skel_coords[0],row.traced_skel_coords[1]],axis = 1)
         
+        #temp_df['linescan'] = linescan = temp_df.apply(lambda row: row.cell_im[row.medialaxis[1].astype('int'),row.medialaxis[0].astype('int')],axis=1)
         temp_df['Mean_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].mean())
         temp_df['Int_Intens'] = temp_df.CellCoord.apply(lambda x: signal_images[x[0],x[1],x[2]].sum())
         temp_df['Norm_Intens_Length'] = temp_df['Int_Intens'].div(temp_df['CellLength'])
@@ -807,7 +814,7 @@ class borrelia_cell_segmentation:
         for file_key,file_grp in self.df.groupby('filename'):
             sensor = self.segmentation_params[f'{file_key}-sensor']
             bw = np.full(sensor,0)
-            coords = pd.np.column_stack(file_grp.CellCoord)
+            coords = np.column_stack(file_grp.CellCoord)
             bw[coords[0],coords[1],coords[2]] = 1
             imsave(f'Binary/{file_key}-bw.tif',bw.astype('uint8'))
 
