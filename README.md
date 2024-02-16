@@ -10,10 +10,23 @@ From the private Jacobs-Wagner server, navigate to N:/Common/CodeRepository/Pyth
 python -m pip install Borrelia_Cell_Segmentation/
 ```
 
+If you want to edit this code on your own, copy the entire "Borrelia_Cell_Segmentation" pipeline into your personal folder. Change your directory in your terminal to this folder's location then run the line below. This will allow Python access to run the code in this specific location, and any edits you make will affect your imports directly.
+```bash
+pip install -e Borrelia_Cell_Segmentation/
+```
+
+
 If you want to install a version update of this code and upgrade the version you *currently* have, you can run this line.
 ```bash
 python -m pip install Borrelia_Cell_Segmentation/ -U
 ```
+
+## Patch 1.2, 2024-02-15
+1) Improved background subtraction courtesy of Alexandros Papagiannakis (cite Jarno Makela's upcoming paper).
+   - This uses the adaptive threshold to generate a rough, dilated binary image rather than an Otsu. The algorithm iterates the adaptive window to create an "ideal" mask. This removes identified objects from the fluorescence image, then a rolling ball smoothed image is produced of the remaining signal.
+   - The current adaptive threshold option in the code now has the options to specify the adaptive window and the thresholding constant. They are not specified in the main segmentation script to produce binaries. However, this leaves the possibility of future versions of the code to do a similar "screening" to make more idealized binary images. More time must be dedicated to make this happen.
+2) Generation of a medial axis to estimate the midline rather than a skeleton. This comes from Alexandros Papagiannakis (cite his Cell paper). This does polynomial univariate fits on the x and y dimensions of the cell mask to generate a sub-pixel line from pole to pole. This step slows down the code, but its accuracy and reliability is undeniably useful. 
+3) Improved memory utilization by deleting large image variables after they are assigned and used. 
 
 ## Patch 1.1, 2023-07-21
 General workflow improvements 
@@ -50,9 +63,10 @@ General workflow improvements
     ```
 
 ### Example usage
-This script is optimzied to work with Nikon *nd2* files. If your microscopy setup exports *tif* files, make sure you convert those to a stack of float32 phase/fluorscent images before loading into the pipeline.
+This script is optimized to work with Nikon *nd2* files. If your microscopy setup exports *tif* files, make sure you convert those to a stack of float32 phase/fluorscent images before loading into the pipeline. Examples of testing thresholds and iterating through multiple different conditions are at the end of this document.
 
-Examples of testing thresholds and iterating through multiple different conditions are at the end of this document.
+#### Generic use cases.
+Below is a generic use if the segmentation works perfectly. You intialize the class, here designated as "sc = bcs(...)", then perform the various functions on the class object. 
 ```python
 import numpy as np
 import pandas as pd
@@ -81,6 +95,76 @@ df.groupby('filename').size()
 ```
 ![example_df_output](documentation/Example_DF_Output.png)
 
+
+#### Example 2.1. Prepare binary images.
+However, I have found it useful to generate binary images first using my desired threshold, in this case 'adaptive,' then review those binary images separately before applying them to analyze fluroesecence images. 
+```python
+import numpy as np
+import pandas as pd
+from matplotlib import pyplot as plt
+from Borrelia_Cell_Segmentation import borrelia_cell_segmentation as bcs
+from Borrelia_Cell_Segmentation import nd2_to_array
+import os,glob
+
+# First make binary files for analysis.
+filelist = glob.glob('RawData/*.nd2')
+
+sc = bcs(threshold='adaptive')
+for file in filelist:
+    start = time.time()
+    filename = os.path.basename(file).removesuffix('.nd2')
+    print(f'Currently analyzing {filename}.')
+    imgs = nd2_to_array(file)
+    images = imgs[2]
+    channels = imgs[3]
+    phase = np.array([image[channels[0]].astype('float32') for _,image in images.items()])
+    fluor = np.array([image[channels[1]].astype('float32') for _,image in images.items()])
+
+    sc(filename,phase)
+    # archive cells analyzes all binary objects, removes bad ones, and logs the good ones.
+    sc.archive_cells()
+    end = time.time()
+    print(f'{filename} took {(end-start)/60:.2f} min.')
+# Save binary then makes binary images for each unique image loaded into the pipeline. 
+# It will generate a new folder named "Binary" on its own, where the images will be deposited.
+sc.save_binary()
+```
+
+#### Example 2.2. Use curated binary images to analyze signal.
+After curating binary images, you can then load these binary images and use the masks to measure cells in the original data.
+```python
+filelist = glob.glob('RawData/*.nd2')
+binary_filelist = glob.glob('Binary/*.tif')
+
+sc = bcs(remove_out_of_focus_cells=False,multiprocessing=True,back_sub=True)
+for file,binary in zip(filelist,binary_filelist):
+    start = time.time()
+    filename = os.path.basename(file).removesuffix('.nd2')
+    print(f'Currently analyzing {filename}.')
+    imgs = nd2_to_array(file)
+    bws = imread(binary)
+    images = imgs[2]
+    channels = imgs[3]
+    phase = np.array([image[channels[0]].astype('float32') for _,image in images.items()])
+    sc.read_binary(bws,filename,phase)
+    del phase,bws
+    fluor = np.array([image[channels[1]].astype('float32') for _,image in images.items()])
+    del imgs
+    temp_df = sc.screen_cells(fluor)
+    del fluor
+    end = time.time()
+    print(f'{filename} took {(end-start)/60:.2f} min.')
+df = sc.return_df()
+
+# below are specifics for my experiment, parsing filenames for columns
+df['Strain'] = df.filename.apply(lambda x: x.split('_')[0])
+df['induction'] = df.filename.apply(lambda x: x.split('_')[1])
+
+#name resulting df however you wish.
+df.to_pickle('Replicate_1.pkl') 
+df.groupby('filename').size()
+```
+
 ## Parameters
 ### Initialization options
 When you initialize the script, you can provide custom inputs according to your experimental design. Below are the current options you can specify upon calling bsc().
@@ -97,8 +181,9 @@ When you initialize the script, you can provide custom inputs according to your 
 - **thresh_adjust**: if you want to change the Otsu threshold, make a multiplier. Default is 1, but can be 1.015 for example.
 - **back_sub**: Change to ```True``` if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.
 - **otsu_bins**: Change the number of bins for otsu thresholding calculation. Default is 25.
-- **remove_out_of_focus_cells**: Change to ```False``` if you don't want to remove cells that are out of focus. For the most part, this is useful for removing cells that are mostly background signal. This means if you are imaging a negative control, it will remove ALL the cells. Change to 0 when you have such a control present.
 - **remove_linescans**: Change to ```True``` if you don't want to include linescans in your analysis. If you are analyzing cells with an aberrant shape where skeletons won't be reliable, this is helpful to toggle off.
+- **use_medial_axis**: Default is ```True```. Change to ```False``` if you want to use skeletons for mid-cell approximations. Note that skeletons do not accurately capture distances between pixels.
+- **multiprocessing**: Default is ```True```; this is for whether you wish to use multiprocessing in generating the medial axis scan. In general, I reccomend keeping this on to speed up the analysis time.
 
 ### Class functions
 - Intialization. Covered above in options. kwargs are optional inputs.
@@ -146,7 +231,7 @@ When you initialize the script, you can provide custom inputs according to your 
     ```python
     pixel_size = sc.pixel_size
     ```
-- Return the dataframe once analysis is complete. If ```save_params``` is set to ```True```, this will also save a text files with *all* parameters used for segmentation for your reference (named "Segmentation_Params.txt").
+- Return the dataframe once analysis is complete. If ```save_params``` is set to ```True```, this will also save a text files with *all* parameters used for segmentation for your reference (named "Segmentation_Params.txt"). It may be useful for future analyses or your lab notebook keepign to have these parameters available.
     ```python
     dataframe = sc.return_df(save_params=False)
     ```
@@ -182,6 +267,8 @@ When you initialize the script, you can provide custom inputs according to your 
 
 ### Additional Examples
 #### Threshold Testing
+If you wish to use an Otsu method to generate binary masks, you can use this step to optimize the filter first.
+
 Below are a couple of code chunks showing how I would test the threshold parameters for a given condition. In this experiemnt, I have 8 ND2 files from 8 different conditions that segment differently. I first import my relevant packages then load the relevant phase image array. Note that the **borrelia_cell_segmentation** class is initialized here.
 ```python
 import numpy as np
@@ -287,7 +374,7 @@ df.to_csv('Replicate.csv')
 ```
 
 ### Making demographs from multiple conditions
-Since the class function only makes *one* demograph from the entire dataframe, you should also be able to make your own demograph if you have more than one condition. Below is just an example code chunk of how I make my demographs.
+Since the class function only makes *one* demograph from the entire dataframe, you should also be able to make your own demograph if you have more than one condition. Below is just an example code chunk of how I make my demographs. **This only works if you measured the midline with the medial axis.**
 ```python
 cell_df = pd.read_pickle('Replicate_1.pkl')
 px_size = 0.065

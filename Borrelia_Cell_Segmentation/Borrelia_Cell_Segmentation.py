@@ -6,7 +6,7 @@ from skimage.morphology import skeletonize
 from skimage.measure import label
 from skimage.segmentation import clear_border
 from skimage.io import imsave
-from scipy.ndimage import binary_fill_holes,gaussian_laplace,binary_dilation
+from scipy.ndimage import binary_fill_holes,gaussian_laplace,binary_dilation,gaussian_filter
 import cv2
 from ast import literal_eval
 import os
@@ -16,15 +16,23 @@ from scipy.signal import find_peaks, peak_widths
 from matplotlib import pyplot as plt
 from Borrelia_Cell_Segmentation.medialaxis import get_medial_axis,get_angle_from_slope
 from pandarallel import pandarallel
-pandarallel.initialize(progress_bar=False)
+
+
+from sys import platform
+if platform == 'win32':
+    # The CJW lab server has many workers. This is to make sure I don't consume all
+    # of a public resource
+    pandarallel.initialize(nb_workers=25,progress_bar=False)
+else:
+    pandarallel.initialize(progress_bar=False)
 
 import warnings
 warnings.filterwarnings('ignore')
 
-def adaptive_threshold(img):
+def adaptive_threshold(img,window=15,constant=3):
     img = cv2.normalize(img, None, 255, 0, cv2.NORM_MINMAX, cv2.CV_8U)
     img = cv2.medianBlur(img,9)
-    bw = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,3)
+    bw = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,window,constant)
     bw = binary_fill_holes(np.invert(bw))
     return bw.astype('uint8')
 
@@ -390,56 +398,115 @@ def polyval2d(x, y, m):
         z += a * x**i * y**j
     return z
 
-def back_sub(phase_image, signal_image, dilate=10):
-        """
-        Produced by Alexandros Papagiannakis in the CJW lab
+def cell_free_bkg_estimation(masked_signal_image, step):
+    """
+    This function scans the image using squared regions of specified size (step) 
+    and applies the average cell-free background fluorescence per region.
+    This function is used in the self.back_sub() function.
+    
+    Parameters
+    ----------
+    masked_signal_image: 2D numpy array - the signal image were the cell pixels are annotated as 0 
+                            and the non-cell pixels maintain their original grayscale values
+    step: integer (should be a divisor or the square image dimensions) - the dimensions of the squared region where 
+            the cell-free background fluorescence is averaged
+            example: for an 2048x2048 image, 128 is a divisor and can be used as the size of the edge of the square 
 
-        Subtracts an n_order second degree polynomial fitted to the non-cell pixels.
-        The 2D polynomial surface is fitted to the non-cell pixels only.
-            The order of the polynomial depends on whether there is uneven illumination or not
-        The non-cell pixels are masked as thos below the otsu threshold estimated on the basis of the inverted phase image.
+    Returns
+    -------
+    A 2D numpy array where the cell-free average background is stored for each square region with specified step-size
+    """
+    sensor = masked_signal_image.shape
+    zero_image = np.zeros(sensor) # initiated an empty image to store the average cell-free background
+    
+    for y in range(0, sensor[1], step):
+        for x in range(0, sensor[0], step):
+            # cropped_image = img_bkg_sig[y:(y+step), x:(x+step)]
+            cropped_mask = masked_signal_image[y:(y+step), x:(x+step)]
+#                mean_bkg = np.mean(cropped_mask[np.nonzero(cropped_mask)].ravel()) # get the mean of the non-zero pixels
+#                mean_bkg = scipy.stats.mode(cropped_mask[cropped_mask!=0].ravel())[0][0] # get the mode of the non-zero pixels
+            mean_bkg = np.median(cropped_mask[np.nonzero(cropped_mask)].ravel()) # get the mean of the non-zero pixels
+            zero_image[y:(y+step), x:(x+step)] = mean_bkg # apply this mean fluorescence to the original empty image
+                    
+    return zero_image
 
-        Input:
-            signal_image: numpy.array - the image to be corrected
-            dilate: non-negative integer - the number of dilation rounds for the cell mask
-            show: binary - True if the user wants to visualize the 2D surface fit
-        Returns:
-            [0] The average background
-            [1] The background corrected image (after subtracting the 2D polynomial surface)
-        """
-
-
-        sensor = (phase_image.shape[0], phase_image.shape[1])
-
-        # invert the image and apply an otsu threshold to separate the dimmest (or inversely brightest pixels) which correspond to the cells
+def back_sub(phase_image, signal_image,thresh = 'adaptive',adaptive_window = 7, dilation=15, estimation_step=128, smoothing_sigma=60, threshold_constant = 2):
+    """
+    Subtracts an n_order second degree polynomial fitted to the non-cell pixels.
+    The 2D polynomial surface is fitted to the non-cell pixels only.
+        The order of the polynomial depends on whether there is uneven illumination or not
+    The non-cell pixels are masked as thos below the otsu threshold estimated on the basis of the inverted phase image.
+    
+    Parameters
+    ----------
+    signal_image: numpy.array - the image to be corrected
+    dilation: non-negative integer - the number of dilation rounds for the cell mask
+    estimation_step: positive_integer - the size of the square edge used for average background estimation
+    smoothing_sigma: non-negative integer - the smoothing factor of the cell free background
+    show: binary - True if the user wants to visualize the 2D surface fit
+    
+    Returns
+    -------
+    [0] The average background
+    [1] The background corrected image (after subtracting the 2D polynomial surface)
+    """
+    # invert the image and apply an otsu threshold to separate the dimmest 
+    # (or inversely brightest pixels) which correspond to the cells
+    bkg_flag = 0
+    if thresh == 'otsu':
         inverted_phase_image = 1/phase_image
         inverted_threshold = threshold_otsu(inverted_phase_image.ravel())
-
         phase_mask = inverted_phase_image > inverted_threshold
+    else:
+        phase_mask = adaptive_threshold(phase_image,window = adaptive_window,constant = threshold_constant)
 
-        # dilate the masked phase images
-        threshold_masks_dil = binary_dilation(phase_mask, iterations=dilate)
+    # dilate the masked phase images
+    threshold_masks_dil = binary_dilation(phase_mask, iterations=dilation)
+    threshold_masks_dil = np.array(threshold_masks_dil)
+    thresh_percent = np.sum(threshold_masks_dil)/np.multiply(threshold_masks_dil.shape[0],threshold_masks_dil.shape[1])
 
-        # select the range of the fit (across the entire sesnor) and the meshgrid
-        # used in the polyval function
-        xx, yy = np.meshgrid( np.linspace(0, sensor[0]-1, sensor[0]), np.linspace(0,sensor[1]-1, sensor[1]))
+    if thresh == 'adaptive' and thresh_percent > 0.60:
+        while thresh_percent > 0.60:
+            threshold_constant = threshold_constant + 0.5
+            phase_mask = adaptive_threshold(phase_image,window = adaptive_window,constant = threshold_constant)
+            threshold_masks_dil = binary_dilation(phase_mask, iterations=dilation)
+            threshold_masks_dil = np.array(threshold_masks_dil)
+            thresh_percent = np.sum(threshold_masks_dil)/np.multiply(threshold_masks_dil.shape[0],threshold_masks_dil.shape[1])
 
+    if thresh == 'adaptive' and thresh_percent < 0.05:
+        while thresh_percent < 0.05:
+            adaptive_window = adaptive_window + 2
+            phase_mask = adaptive_threshold(phase_image,window = adaptive_window,constant = threshold_constant)
+            threshold_masks_dil = binary_dilation(phase_mask, iterations=dilation)
+            threshold_masks_dil = np.array(threshold_masks_dil)
+            thresh_percent = np.sum(threshold_masks_dil)/np.multiply(threshold_masks_dil.shape[0],threshold_masks_dil.shape[1])
+            
+            #If this does not converge, just make an otsu and move on.
+            if adaptive_window > 200:
+                inverted_phase_image = 1/phase_image
+                inverted_threshold = threshold_otsu(inverted_phase_image.ravel())
+                phase_mask = inverted_phase_image > inverted_threshold
+                threshold_masks_dil = binary_dilation(phase_mask, iterations=dilation)
+                threshold_masks_dil = np.array(threshold_masks_dil)
+                thresh_percent = 0.1
+                bkg_flag = 1
 
-        zeros = np.nonzero(np.invert(threshold_masks_dil))
-        xcoord = zeros[0]
-        ycoord = zeros[1]
-        zcoord = signal_image[xcoord,ycoord]
+    # mask the signal image, excluding the dilated cell pixels
+    masked_signal_image = signal_image * ~threshold_masks_dil
 
+    # The dimensions of the averaging square
+    step = estimation_step
+    img_bkg_sig = cell_free_bkg_estimation(masked_signal_image, step)
+        
+    # Smooth the reconstructed background image, with the filled cell pixels.
+    img_bkg_sig = img_bkg_sig.astype(np.int16)
+    img_bkg_sig = gaussian_filter(img_bkg_sig, sigma=smoothing_sigma)
+    norm_img_bkg_sig = img_bkg_sig/np.max(img_bkg_sig.ravel())
 
-        # fit a polynomial surface function to the masked pixel intensities (excluding the cells)
-        m = polyfit2d(np.array(xcoord),np.array(ycoord),np.array(zcoord),2)
+    # subtract the reconstructed background from the original signal image
+    bkg_cor = (signal_image - img_bkg_sig)/norm_img_bkg_sig
 
-        # re-estimate the background pixel intensities from the fitted function for the meshgrid (sensor area)
-        zz = polyval2d(xx, yy, m)  # xx and yy are defined in line 287
-
-        bkg_cor = signal_image - zz.T
-
-        return bkg_cor
+    return bkg_cor,bkg_flag
 
 def simple_background_estimation(phase_image,signal_image,dilate = 10):
     sensor = (phase_image.shape[0], phase_image.shape[1])
@@ -480,8 +547,8 @@ class borrelia_cell_segmentation:
     Made by Joshua McCausland in the CJW lab, 2023.
     '''
     def __init__(self,mimimum_size = 500,minimum_length = 5,maximum_width = 0.55,px_size = 0.065,
-                 instantaneous_max_width = 1, back_sub = False,threshold = 'batch_otsu',thresh_adjust = 1,otsu_bins = 25,
-                 remove_out_of_focus_cells = True,remove_linescans = True,use_medial_axis = True,multiprocessing=False):
+                 instantaneous_max_width = 1, back_sub = True,threshold = 'adaptive',thresh_adjust = 1,otsu_bins = 25,
+                 remove_out_of_focus_cells = False,remove_linescans = True,use_medial_axis = True,multiprocessing=True):
         args = {'minimum_size': mimimum_size,
                          'minimum_length': minimum_length,
                          'maximum_width': maximum_width,
@@ -603,6 +670,7 @@ class borrelia_cell_segmentation:
         self.phase = phase_images
         self.filename = filename
         self.sensor = phase_images.shape
+        del phase_images
         self.segmentation_params[f'{filename}-sensor'] = self.sensor
         if thresh_adjust:
             self.thresh_adjust = thresh_adjust
@@ -654,6 +722,7 @@ class borrelia_cell_segmentation:
             image_slice = image_slice + max_val
             image_slice[image_slice == max_val] = 0
             max_val += np.max(image_slice)
+        del component_sizes,too_small_mask
 
         for idx in np.arange(ccs.shape[0]):
             ccs[idx] = clear_border(ccs[idx],buffer_size = 5)
@@ -664,19 +733,24 @@ class borrelia_cell_segmentation:
         too_short = component_lengths*self.px_size <= self.minimum_length
         too_short_mask = too_short[skeletons]
         skeletons[too_short_mask] = 0
+        del component_lengths,too_short_mask
 
         cell_coords = get_indices_pandas(ccs)
         del ccs
         skel_coords = get_indices_pandas(skeletons)
 
         matches = skel_coords.index.intersection(cell_coords.index)
-        self.skel_coords = skel_coords[matches[1:]]
         self.cell_coords = cell_coords[matches[1:]]
+        del cell_coords
+        self.skel_coords = skel_coords[matches[1:]]
+        del skel_coords
+        
 
     def read_binary(self,binary_images,filename,phase_images):
         self.phase = phase_images
         self.filename = filename
         self.sensor = phase_images.shape
+        del phase_images
         bw = binary_images > 0
         bw = bw.astype('uint8')
         ccs = label(bw)
@@ -699,8 +773,11 @@ class borrelia_cell_segmentation:
         skel_coords = get_indices_pandas(skeletons)
 
         matches = skel_coords.index.intersection(cell_coords.index)
-        self.skel_coords = skel_coords[matches[1:]]
         self.cell_coords = cell_coords[matches[1:]]
+        del cell_coords
+        self.skel_coords = skel_coords[matches[1:]]
+        del skel_coords
+        
 
     def screen_cells(self,signal_images):
         if not self.skel_coords.shape[0]:
@@ -721,14 +798,17 @@ class borrelia_cell_segmentation:
         temp_df['thickness'] = thickness*self.px_size*2
         temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
         max_width = thickness.apply(lambda x: 2*np.max(x)*self.px_size)
+        bkg_flag = []
         if self.back_sub:
-            #bkg_imgs = []
             for i in np.arange(self.sensor[0]):
-                bkg_val = simple_background_estimation(self.phase[i],signal_images[i])
-                #bkg_imgs.append(signal_images[i] - bkg_val)
-                signal_images[i] = signal_images[i] - bkg_val
-            #signal_images = np.array(bkg_imgs)
-            #del bkg_imgs
+                signal_images[i],_flag = back_sub(self.phase[i],signal_images[i])
+                bkg_flag.append(_flag)
+
+            # If a frame didn't converge for background subtraction, remove corresponding cells.
+            bkg_check = np.array(bkg_check).astype(bool)
+            bkg_check = temp_df.frame.apply(lambda x: bkg_flag[x-1])
+            temp_df = temp_df[~bkg_check]
+
         del self.phase
 
         if self.medial_axis:
@@ -802,6 +882,8 @@ class borrelia_cell_segmentation:
         temp_df['skel_coords'] = temp_df.CellID.apply(lambda x: np.array(self.skel_coords[x]))
         temp_df['CellLength'] = temp_df.skel_coords.apply(lambda x: x[0].size*self.px_size)
         temp_df = temp_df[temp_df.CellLength > self.minimum_length]
+        nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
+        temp_df = temp_df[nodes == 2]
         thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
         temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
         temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
@@ -844,13 +926,20 @@ class borrelia_cell_segmentation:
             linescan_bottom = np.floor(len(linescan)/2).astype(int)
             linescan_top = np.ceil(len(linescan)/2).astype(int)
             demo[half_width-linescan_bottom:half_width+linescan_top,index] = (linescan-linescan.mean())/linescan.std()
-        
-        fig, ax = plt.subplots(figsize=figure_size,layout = 'constrained')
-        cax = ax.imshow(demo,cmap=color_map,vmin = lut_min,vmax=lut_max, aspect="auto")
-        midpoint = np.ceil((df.sizes.max()+1)/2)
 
-        ytick_locations = [midpoint+midpoint,midpoint-midpoint, midpoint-midpoint/2, midpoint, midpoint+midpoint/2]
-        ax.yaxis.set_ticks(ytick_locations,np.round((ytick_locations-midpoint)*self.px_size,2))
+        arc_length = df.iloc[-1].arc_length
+        arc_length = arc_length - np.median(arc_length)
+
+        fig, ax = plt.subplots(figsize=figure_size,layout = 'constrained')
+        cax = ax.imshow(demo,cmap=color_map,vmin = lut_min,vmax=lut_max, aspect="auto",interpolation='gaussian')
+
+        # Make an evenly spaced y axis with correct unit scaling.
+        ny = demo.shape[0]
+        no_labels = 7 # how many labels to see on axis y
+        step_y = int(ny / (no_labels - 1))-1 # step between consecutive labels
+        y_positions = np.arange(0,ny,step_y) # pixel count at label position
+        y_labels = arc_length[y_positions] # labels you want to see
+        ax.yaxis.set_ticks(y_positions, y_labels.astype('int'))
         ax.set_ylabel('Cell position ($\mu$m)')
         ax.set_xlabel('Cell number')
         ax.spines[['top','right']].set_visible(False)
