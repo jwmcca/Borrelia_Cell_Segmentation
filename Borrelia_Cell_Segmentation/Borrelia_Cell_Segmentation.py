@@ -184,6 +184,19 @@ def calc_medial_axis(cell_coord,px_size):
     except:
         return [[0],[0]],0,[0]
 
+def measure_curvature(med_ax):
+    steps = med_ax[0].shape[0]-1
+    steps = np.linspace(0,steps,steps+1)
+
+    xf = np.polyfit(steps,med_ax[0],deg=3)
+    yf = np.polyfit(steps,med_ax[1],deg=3)
+    xfit = np.poly1d(xf)
+    yfit = np.poly1d(yf)
+    res_x = med_ax[0] - xfit(steps)
+    res_y = med_ax[1] - yfit(steps)
+    res_total = np.abs(res_x+res_y)
+    return np.std(res_total)
+
 def nd2_to_array(images_path):
     """
     Produced by Alexandros Papagiannakis in the CJW lab
@@ -831,29 +844,18 @@ class borrelia_cell_segmentation:
             temp_df = temp_df[medial_check]
             #try:
             temp_df['linescan'] = temp_df.apply(lambda row: row.cell_im[row.medialaxis[1].astype('int'),row.medialaxis[0].astype('int')],axis=1)
+            temp_df['curvature'] = temp_df.medialaxis.apply(lambda x: measure_curvature(x*self.px_size))
 
         if self.remove_linescans:
             temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
         else:
             temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1) | (max_width < self.inst_max_width)]
 
-
         saturated =  temp_df.CellCoord.apply(lambda x: False if signal_images[x[0],x[1],x[2]].max() == 2**16-1 else True)
         temp_df = temp_df[saturated]
         if self.remove_out_of_focus_cells:
             check_if_in_focus = temp_df.apply(lambda row: check_in_focus(signal_images[row.frame-1],row.CellCoord),axis = 1)
             temp_df = temp_df[check_if_in_focus]
-                
-        
-        '''
-        if self.back_sub:
-            print(f'Initializing background subtraction in {self.filename}...')
-            bkg_sub = np.empty(signal_images.shape())
-            for i in np.arange(bkg_sub.shape[0]):
-                bkg_sub[i] = back_sub(self.phase[i],signal_images[i])
-            signal_images = bkg_sub
-        '''
-
 
         if not self.remove_linescans:
             temp_df['traced_skel_coords'] = temp_df.skel_coords.apply(lambda x: parse_skeleton(self.sensor[1:],x[1:]))

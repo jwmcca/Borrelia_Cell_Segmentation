@@ -26,6 +26,7 @@ python -m pip install Borrelia_Cell_Segmentation/ -U
    - This uses the adaptive threshold to generate a rough, dilated binary image rather than an Otsu. The algorithm iterates the adaptive window to create an "ideal" mask. This removes identified objects from the fluorescence image, then a rolling ball smoothed image is produced of the remaining signal.
    - The current adaptive threshold option in the code now has the options to specify the adaptive window and the thresholding constant. They are not specified in the main segmentation script to produce binaries. However, this leaves the possibility of future versions of the code to do a similar "screening" to make more idealized binary images. More time must be dedicated to make this happen.
 2) Generation of a medial axis to estimate the midline rather than a skeleton. This comes from Alexandros Papagiannakis (cite his Cell paper). This does polynomial univariate fits on the x and y dimensions of the cell mask to generate a sub-pixel line from pole to pole. This step slows down the code, but its accuracy and reliability is undeniably useful. 
+    - This medial axis is also used to measure the curvature of each cell. This does a bivariate low-degree polynomial fit to the medial axis and measures the residuals. It returns the standard deviation of the residuals. A higher variance in residuals means the cells are more curved.
 3) Improved memory utilization by deleting large image variables after they are assigned and used. 
 
 ## Patch 1.1, 2023-07-21
