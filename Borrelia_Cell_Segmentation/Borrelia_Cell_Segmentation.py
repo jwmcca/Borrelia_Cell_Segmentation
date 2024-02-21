@@ -683,7 +683,7 @@ class borrelia_cell_segmentation:
         self.phase = phase_images
         self.filename = filename
         self.sensor = phase_images.shape
-        del phase_images
+        
         self.segmentation_params[f'{filename}-sensor'] = self.sensor
         if thresh_adjust:
             self.thresh_adjust = thresh_adjust
@@ -721,7 +721,7 @@ class borrelia_cell_segmentation:
             bw = np.zeros(self.sensor).astype('int')
             for idx in np.arange(bw.shape[0]):
                 bw[idx] = adaptive_threshold(phase_images[idx])
-
+        del phase_images
         bw = bw.astype('int')   
         
         ccs = label(bw)
@@ -818,7 +818,7 @@ class borrelia_cell_segmentation:
                 bkg_flag.append(_flag)
 
             # If a frame didn't converge for background subtraction, remove corresponding cells.
-            bkg_check = np.array(bkg_check).astype(bool)
+            bkg_flag = np.array(bkg_flag).astype(bool)
             bkg_check = temp_df.frame.apply(lambda x: bkg_flag[x-1])
             temp_df = temp_df[~bkg_check]
 

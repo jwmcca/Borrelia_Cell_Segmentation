@@ -19,6 +19,8 @@ setup(
         'scikit-image',
         'scipy',
         'opencv-python',
-        'nd2reader'
+        'nd2reader',
+        'shapely',
+        'pandarallel'
         ], 
     )
