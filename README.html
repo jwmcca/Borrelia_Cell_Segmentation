@@ -85,8 +85,8 @@ sc <span class="token operator">=</span> bsc<span class="token punctuation">(</s
 </ul>
 <h3 id="example-usage">Example usage </h3>
 <p>This script is optimized to work with Nikon <em>nd2</em> files. If your microscopy setup exports <em>tif</em> files, make sure you convert those to a stack of float32 phase/fluorscent images before loading into the pipeline. Examples of testing thresholds and iterating through multiple different conditions are at the end of this document.</p>
-<h4 id="generic-use-cases">Generic use cases. </h4>
-<p>Below is a generic use if the segmentation works perfectly. You intialize the class, here designated as "sc = bcs(...)", then perform the various functions on the class object.</p>
+<h4 id="example-1">Example 1. </h4>
+<p>Below is a generic use if the segmentation works perfectly. You intialize the class, here designated as "sc = bcs(...)", then perform the various functions on the class object. I personally reccomend generating binary images first, so look at <strong>Example 2.1</strong> below.</p>
 <pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-import">import</span> numpy <span class="token keyword keyword-as">as</span> np
 <span class="token keyword keyword-import">import</span> pandas <span class="token keyword keyword-as">as</span> pd
 <span class="token keyword keyword-from">from</span> matplotlib <span class="token keyword keyword-import">import</span> pyplot <span class="token keyword keyword-as">as</span> plt
@@ -113,7 +113,7 @@ df<span class="token punctuation">.</span>to_csv<span class="token punctuation">
 df<span class="token punctuation">.</span>groupby<span class="token punctuation">(</span><span class="token string">'filename'</span><span class="token punctuation">)</span><span class="token punctuation">.</span>size<span class="token punctuation">(</span><span class="token punctuation">)</span>
 </code></pre><p><img src="documentation/Example_DF_Output.png" alt="example_df_output"></p>
 <h4 id="example-21-prepare-binary-images">Example 2.1. Prepare binary images. </h4>
-<p>However, I have found it useful to generate binary images first using my desired threshold, in this case 'adaptive,' then review those binary images separately before applying them to analyze fluroesecence images.</p>
+<p>I have found it useful to generate binary images first using my desired threshold, in this case 'adaptive,' then review those binary images separately before applying them to analyze fluroesecence images.</p>
 <pre data-role="codeBlock" data-info="python" class="language-python python"><code><span class="token keyword keyword-import">import</span> numpy <span class="token keyword keyword-as">as</span> np
 <span class="token keyword keyword-import">import</span> pandas <span class="token keyword keyword-as">as</span> pd
 <span class="token keyword keyword-from">from</span> matplotlib <span class="token keyword keyword-import">import</span> pyplot <span class="token keyword keyword-as">as</span> plt
@@ -148,7 +148,7 @@ sc<span class="token punctuation">.</span>save_binary<span class="token punctuat
 <pre data-role="codeBlock" data-info="python" class="language-python python"><code>filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">'RawData/*.nd2'</span><span class="token punctuation">)</span>
 binary_filelist <span class="token operator">=</span> glob<span class="token punctuation">.</span>glob<span class="token punctuation">(</span><span class="token string">'Binary/*.tif'</span><span class="token punctuation">)</span>
 
-sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span>remove_out_of_focus_cells<span class="token operator">=</span><span class="token boolean">False</span><span class="token punctuation">,</span>multiprocessing<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span>back_sub<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+sc <span class="token operator">=</span> bcs<span class="token punctuation">(</span><span class="token punctuation">)</span>
 <span class="token keyword keyword-for">for</span> <span class="token builtin">file</span><span class="token punctuation">,</span>binary <span class="token keyword keyword-in">in</span> <span class="token builtin">zip</span><span class="token punctuation">(</span>filelist<span class="token punctuation">,</span>binary_filelist<span class="token punctuation">)</span><span class="token punctuation">:</span>
     start <span class="token operator">=</span> time<span class="token punctuation">.</span>time<span class="token punctuation">(</span><span class="token punctuation">)</span>
     filename <span class="token operator">=</span> os<span class="token punctuation">.</span>path<span class="token punctuation">.</span>basename<span class="token punctuation">(</span><span class="token builtin">file</span><span class="token punctuation">)</span><span class="token punctuation">.</span>removesuffix<span class="token punctuation">(</span><span class="token string">'.nd2'</span><span class="token punctuation">)</span>
@@ -193,7 +193,7 @@ df<span class="token punctuation">.</span>groupby<span class="token punctuation"
 </ul>
 </li>
 <li><strong>thresh_adjust</strong>: if you want to change the Otsu threshold, make a multiplier. Default is 1, but can be 1.015 for example.</li>
-<li><strong>back_sub</strong>: Change to <code>True</code> if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.</li>
+<li><strong>back_sub</strong>: Default <code>True</code>. Change to <code>True</code> if you want to subtract the background from every image before measuring intensity.</li>
 <li><strong>otsu_bins</strong>: Change the number of bins for otsu thresholding calculation. Default is 25.</li>
 <li><strong>remove_linescans</strong>: Change to <code>True</code> if you don't want to include linescans in your analysis. If you are analyzing cells with an aberrant shape where skeletons won't be reliable, this is helpful to toggle off.</li>
 <li><strong>use_medial_axis</strong>: Default is <code>True</code>. Change to <code>False</code> if you want to use skeletons for mid-cell approximations. Note that skeletons do not accurately capture distances between pixels.</li>

@@ -22,10 +22,10 @@ python -m pip install Borrelia_Cell_Segmentation/ -U
 ```
 
 ## Patch 1.2, 2024-02-15
-1) Improved background subtraction courtesy of Alexandros Papagiannakis (cite Jarno Makela's upcoming paper).
+1) Improved background subtraction courtesy of Alexandros Papagiannakis (currently in [bioRxiv](https://elifesciences.org/reviewed-preprints/97465)), available from his [GitHub](https://github.com/alexSysBio/Image_background_subtraction).
    - This uses the adaptive threshold to generate a rough, dilated binary image rather than an Otsu. The algorithm iterates the adaptive window to create an "ideal" mask. This removes identified objects from the fluorescence image, then a rolling ball smoothed image is produced of the remaining signal.
    - The current adaptive threshold option in the code now has the options to specify the adaptive window and the thresholding constant. They are not specified in the main segmentation script to produce binaries. However, this leaves the possibility of future versions of the code to do a similar "screening" to make more idealized binary images. More time must be dedicated to make this happen.
-2) Generation of a medial axis to estimate the midline rather than a skeleton. This comes from Alexandros Papagiannakis (cite his Cell paper). This does polynomial univariate fits on the x and y dimensions of the cell mask to generate a sub-pixel line from pole to pole. This step slows down the code, but its accuracy and reliability is undeniably useful. 
+2) Generation of a medial axis to estimate the midline rather than a skeleton. This comes from Alexandros Papagiannakis (currently in [bioRxiv](https://elifesciences.org/reviewed-preprints/97465)), available from his [GitHub](https://github.com/alexSysBio/Cell_medial_axis_definitions). This does polynomial univariate fits on the x and y dimensions of the cell mask to generate a sub-pixel line from pole to pole. This step slows down the code, but its accuracy and reliability is undeniably useful. 
     - This medial axis is also used to measure the curvature of each cell. This does a bivariate low-degree polynomial fit to the medial axis and measures the residuals. It returns the standard deviation of the residuals. A higher variance in residuals means the cells are more curved.
 3) Improved memory utilization by deleting large image variables after they are assigned and used. 
 
@@ -66,8 +66,8 @@ General workflow improvements
 ### Example usage
 This script is optimized to work with Nikon *nd2* files. If your microscopy setup exports *tif* files, make sure you convert those to a stack of float32 phase/fluorscent images before loading into the pipeline. Examples of testing thresholds and iterating through multiple different conditions are at the end of this document.
 
-#### Generic use cases.
-Below is a generic use if the segmentation works perfectly. You intialize the class, here designated as "sc = bcs(...)", then perform the various functions on the class object. 
+#### Example 1.
+Below is a generic use if the segmentation works perfectly. You intialize the class, here designated as "sc = bcs(...)", then perform the various functions on the class object. I personally reccomend generating binary images first, so look at **Example 2.1** below. 
 ```python
 import numpy as np
 import pandas as pd
@@ -98,7 +98,7 @@ df.groupby('filename').size()
 
 
 #### Example 2.1. Prepare binary images.
-However, I have found it useful to generate binary images first using my desired threshold, in this case 'adaptive,' then review those binary images separately before applying them to analyze fluroesecence images. 
+I have found it useful to generate binary images first using my desired threshold, in this case 'adaptive,' then review those binary images separately before applying them to analyze fluroesecence images. 
 ```python
 import numpy as np
 import pandas as pd
@@ -137,7 +137,7 @@ After curating binary images, you can then load these binary images and use the 
 filelist = glob.glob('RawData/*.nd2')
 binary_filelist = glob.glob('Binary/*.tif')
 
-sc = bcs(remove_out_of_focus_cells=False,multiprocessing=True,back_sub=True)
+sc = bcs()
 for file,binary in zip(filelist,binary_filelist):
     start = time.time()
     filename = os.path.basename(file).removesuffix('.nd2')
@@ -180,7 +180,7 @@ When you initialize the script, you can provide custom inputs according to your 
     - *'multiotsu'*: Calculates a single otsu threshold for the entire image array similar to 'batch_otsu'. The difference is that this uses Numpy's multiotsu function, generating two thresholds given the histogram rather than one. I pick the lower of the two. This is useful if your phase contrast images have many bright spots that confound a single otsu.
     - *'adaptive'*: Uses an adaptive threshold by scanning the image with a 15-kernel window. Helpful in low dynamic range images, but it tends to cut cells short. 
 - **thresh_adjust**: if you want to change the Otsu threshold, make a multiplier. Default is 1, but can be 1.015 for example.
-- **back_sub**: Change to ```True``` if you want to subtract the background from every image before measuring intensity. This is a simple background subtraction that measures the mean background.
+- **back_sub**: Default ```True```. Change to ```True``` if you want to subtract the background from every image before measuring intensity.
 - **otsu_bins**: Change the number of bins for otsu thresholding calculation. Default is 25.
 - **remove_linescans**: Change to ```True``` if you don't want to include linescans in your analysis. If you are analyzing cells with an aberrant shape where skeletons won't be reliable, this is helpful to toggle off.
 - **use_medial_axis**: Default is ```True```. Change to ```False``` if you want to use skeletons for mid-cell approximations. Note that skeletons do not accurately capture distances between pixels.

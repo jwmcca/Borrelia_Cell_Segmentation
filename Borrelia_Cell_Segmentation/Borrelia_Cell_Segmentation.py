@@ -792,6 +792,49 @@ class borrelia_cell_segmentation:
         del skel_coords
         
 
+    def analyze_cell_morphology_only(self):
+        del self.phase
+        if not self.skel_coords.shape[0]:
+            print('There are no cells to screen!')
+            return
+        temp_df = pd.DataFrame()
+        temp_df['filename'] = pd.Series(np.repeat(self.filename,self.cell_coords.index.size))
+        temp_df['CellID'] = self.cell_coords.index
+        temp_df['CellCoord'] = temp_df.CellID.apply(lambda x: np.array(self.cell_coords[x]))
+        temp_df['frame'] = temp_df.CellCoord.apply(lambda x: x[0][0]+1)
+        temp_df['skel_coords'] = temp_df.CellID.apply(lambda x: np.array(self.skel_coords[x]))
+        temp_df['traced_skel_coords'] = temp_df.skel_coords.apply(lambda x: parse_skeleton(self.sensor[1:],x[1:]))
+        temp_df['CellLength'] = temp_df.skel_coords.apply(lambda x: x[0].size*self.px_size)
+        temp_df = temp_df[temp_df.CellLength > self.minimum_length]
+        if not self.remove_linescans:
+            nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
+            temp_df = temp_df[nodes == 2]
+        thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
+        temp_df['thickness'] = thickness*self.px_size*2
+        temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
+        max_width = thickness.apply(lambda x: 2*np.max(x)*self.px_size)
+
+        if self.medial_axis:
+            if self.multiprocessing:
+                #pandarallel.initialize(progress_bar=True)
+                medial_axis_results = temp_df.CellCoord.parallel_apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
+            else:
+                print("Currently calculating medial axes...")
+                medial_axis_results = temp_df.CellCoord.apply(lambda x: calc_medial_axis(x,px_size=self.px_size))
+            temp_df['medialaxis'] = medial_axis_results.apply(lambda x: x[0])
+            temp_df['medial_length'] = medial_axis_results.apply(lambda x: x[1])
+            temp_df['arc_length'] = medial_axis_results.apply(lambda x: x[2])
+            medial_check = temp_df.medial_length.apply(lambda x: True if x > 0 else False)
+            temp_df = temp_df[medial_check]
+            #try:
+            temp_df['curvature'] = temp_df.medialaxis.apply(lambda x: measure_curvature(x*self.px_size))
+        if self.remove_linescans:
+            temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
+        else:
+            temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1) | (max_width < self.inst_max_width)]
+
+        self.df = pd.concat([self.df,temp_df])
+
     def screen_cells(self,signal_images):
         if not self.skel_coords.shape[0]:
             print('There are no cells to screen!')
@@ -872,7 +915,7 @@ class borrelia_cell_segmentation:
         temp_df['Norm_Intens_Area'] = temp_df.apply(lambda row: row.Int_Intens/(row.CellCoord[0].shape[0]*self.px_size**2),axis = 1)
         self.df = pd.concat([self.df,temp_df])
 
-    def archive_cells(self):
+    def archive_cells(self,filter_nodes=True):
         if not self.skel_coords.shape[0]:
             print('There are no cells to screen!')
             return
@@ -884,8 +927,9 @@ class borrelia_cell_segmentation:
         temp_df['skel_coords'] = temp_df.CellID.apply(lambda x: np.array(self.skel_coords[x]))
         temp_df['CellLength'] = temp_df.skel_coords.apply(lambda x: x[0].size*self.px_size)
         temp_df = temp_df[temp_df.CellLength > self.minimum_length]
-        nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
-        temp_df = temp_df[nodes == 2]
+        if filter_nodes:
+            nodes = temp_df.skel_coords.apply(lambda x: count_skeleton_nodes(x))
+            temp_df = temp_df[nodes == 2]
         thickness = temp_df.apply(lambda row: measure_thickness(self.sensor[1:],row['CellCoord'],row['skel_coords']),axis=1)
         temp_df['width'] = thickness.apply(lambda x: 2*np.mean(x)*self.px_size)
         temp_df = temp_df[(temp_df.width < self.maximum_width) & (temp_df.width > 0.1)]
